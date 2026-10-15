@@ -12,3 +12,6 @@ class Config:
     PORT = int(os.environ.get("PORT", 5000))
     HOST = os.environ.get("HOST", "127.0.0.1")
     DEBUG = True
+    TURSO_DATABASE_URL = os.environ.get("TURSO_DATABASE_URL", "")
+    TURSO_AUTH_TOKEN = os.environ.get("TURSO_AUTH_TOKEN", "")
+

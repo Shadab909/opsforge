@@ -1,5 +1,8 @@
 # User data is personal — don't commit, just carry the folder
 #user_data/
+.env
+.env.*
+
 
 
 # Python

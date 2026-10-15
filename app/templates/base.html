@@ -61,7 +61,14 @@
             </div>
 
             <!-- Profile & Actions -->
-            <div class="flex items-center space-x-4">
+            <div class="flex items-center space-x-3 sm:space-x-4">
+                <a href="{{ url_for('auth.cloud_sync') }}" 
+                   title="{% if turso_enabled %}Turso Cloud Sync is Active{% else %}Configure Turso Cloud Sync{% endif %}"
+                   class="flex items-center space-x-1.5 px-2.5 py-1 rounded-lg text-xs font-medium border transition {% if turso_enabled %}bg-cyan-500/10 border-cyan-500/30 text-cyan-300 hover:border-cyan-400{% else %}bg-dark-700/60 border-dark-600 text-slate-400 hover:text-slate-200{% endif %}">
+                    <span>{% if turso_enabled %}🟢{% else %}☁️{% endif %}</span>
+                    <span class="hidden xs:inline">Cloud Sync</span>
+                </a>
+
                 {% if current_user %}
                 <div class="relative group" id="profileDropdownContainer">
                     <button class="flex items-center space-x-2.5 px-3 py-1.5 rounded-lg border border-dark-600 bg-dark-700 hover:border-emerald-500/50 transition">
@@ -81,6 +88,10 @@
                             <span>⚙️</span>
                             <span>Profile Settings</span>
                         </a>
+                        <a href="{{ url_for('auth.cloud_sync') }}" class="flex items-center space-x-2 px-3 py-2 text-sm text-cyan-300 hover:bg-dark-700 rounded-lg transition">
+                            <span>☁️</span>
+                            <span>Cloud Sync {% if turso_enabled %}(Active){% endif %}</span>
+                        </a>
                         <a href="{{ url_for('auth.select_profile') }}" class="flex items-center space-x-2 px-3 py-2 text-sm text-slate-300 hover:bg-dark-700 rounded-lg transition">
                             <span>🔄</span>
                             <span>Switch Profile</span>
@@ -95,6 +106,7 @@
                 <a href="{{ url_for('auth.select_profile') }}" class="px-4 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-sm transition">Select Profile</a>
                 {% endif %}
             </div>
+
         </div>
     </header>
 

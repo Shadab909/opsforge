@@ -13,11 +13,17 @@ def create_app(config_class=Config):
         username = session.get("username")
         current_user = get_profile(username) if username else None
         profiles = list_profiles()
+        from app.turso import is_turso_enabled, get_turso_credentials
+        turso_active = is_turso_enabled()
+        db_url, _ = get_turso_credentials()
         return {
             "current_user": current_user,
             "available_profiles": profiles,
-            "app_name": "OpsForge"
+            "app_name": "OpsForge",
+            "turso_enabled": turso_active,
+            "turso_url": db_url
         }
+
 
     # Fallback asset route
     @app.route('/assets/<path:filename>')

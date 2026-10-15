@@ -108,7 +108,24 @@
             <div class="mt-6 pt-4 border-t border-dark-700/60 text-xs text-slate-500">
                 💡 <strong class="text-slate-400">Portable by design:</strong> Your progress and credentials stay stored locally in your <code class="text-emerald-400">user_data/</code> folder.
             </div>
+    </div>
+
+    <!-- Cloud Sync Banner -->
+    <div class="mt-8 p-4 sm:p-5 rounded-2xl border border-dark-700 bg-dark-800/90 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xl">
+        <div class="flex items-center space-x-3.5">
+            <div class="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-xl shrink-0">
+                ☁️
+            </div>
+            <div>
+                <p class="text-sm font-semibold text-slate-200">Using OpsForge on both mobile and laptop?</p>
+                <p class="text-xs text-slate-400">Enable Turso Cloud Sync to keep your quizzes, reading progress and profile automatically synchronized.</p>
+            </div>
         </div>
+        <a href="{{ url_for('auth.cloud_sync') }}" class="shrink-0 px-4 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold transition flex items-center space-x-1.5 shadow-lg shadow-cyan-600/20">
+            <span>{% if turso_enabled %}Cloud Sync Active (Manage){% else %}Connect Cloud Sync{% endif %}</span>
+            <span>&rarr;</span>
+        </a>
     </div>
 </div>
+
 {% endblock %}

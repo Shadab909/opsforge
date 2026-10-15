@@ -1,9 +1,14 @@
 import os
 import json
 import sqlite3
+import logging
 from datetime import datetime
 from pathlib import Path
+from werkzeug.security import generate_password_hash, check_password_hash
 from app.config import Config
+from app.turso import is_turso_enabled, execute_turso_pipeline, init_turso_schema
+
+logger = logging.getLogger("opsforge.database")
 
 def get_user_dir(username: str) -> Path:
     user_dir = Config.USER_DATA_DIR / username
@@ -58,32 +63,86 @@ def init_db_tables(conn: sqlite3.Connection):
     conn.commit()
 
 def init_user_db(username: str):
-    """Initializes tables in user_data/<username>/progress.db"""
+    """Initializes tables in user_data/<username>/progress.db and Turso if enabled"""
     conn = get_db(username)
     init_db_tables(conn)
     conn.close()
+    if is_turso_enabled():
+        try:
+            init_turso_schema()
+        except Exception as e:
+            logger.warning(f"Could not init Turso schema: {e}")
 
 def list_profiles():
-    """Lists all available profiles from user_data/ directory"""
-    profiles = []
-    if not Config.USER_DATA_DIR.exists():
-        return profiles
+    """Lists all available profiles from user_data/ directory, merged with Turso if active"""
+    local_profiles = {}
+    if Config.USER_DATA_DIR.exists():
+        for item in Config.USER_DATA_DIR.iterdir():
+            if item.is_dir() and (item / "profile.json").exists():
+                try:
+                    with open(item / "profile.json", "r", encoding="utf-8") as f:
+                        data = json.load(f)
+                        local_profiles[data["username"]] = data
+                except Exception:
+                    pass
 
-    for item in Config.USER_DATA_DIR.iterdir():
-        if item.is_dir() and (item / "profile.json").exists():
-            try:
-                with open(item / "profile.json", "r", encoding="utf-8") as f:
-                    data = json.load(f)
-                    profiles.append(data)
-            except Exception:
-                pass
-    # Sort by last_active descending
+    # If Turso is enabled, fetch remote profiles and merge
+    if is_turso_enabled():
+        try:
+            res = execute_turso_pipeline(["SELECT * FROM profiles;"])
+            if res and res[0]["rows"]:
+                for r in res[0]["rows"]:
+                    uname = r["username"]
+                    pref_raw = r.get("preferences")
+                    pref = json.loads(pref_raw) if isinstance(pref_raw, str) else (pref_raw or {})
+                    turso_data = {
+                        "username": uname,
+                        "display_name": r["display_name"],
+                        "password_hash": r.get("password_hash"),
+                        "preferences": pref,
+                        "created_at": r.get("created_at"),
+                        "last_active": r.get("last_active")
+                    }
+                    # Save or update to local cache
+                    u_dir = get_user_dir(uname)
+                    with open(u_dir / "profile.json", "w", encoding="utf-8") as f:
+                        json.dump(turso_data, f, indent=2)
+                    local_profiles[uname] = turso_data
+        except Exception as e:
+            logger.warning(f"Failed to fetch profiles from Turso: {e}")
+
+    profiles = list(local_profiles.values())
     profiles.sort(key=lambda x: x.get("last_active", ""), reverse=True)
     return profiles
 
-from werkzeug.security import generate_password_hash, check_password_hash
-
 def get_profile(username: str):
+    if is_turso_enabled():
+        try:
+            res = execute_turso_pipeline([{
+                "sql": "SELECT * FROM profiles WHERE username = ?;",
+                "args": [username]
+            }])
+            if res and res[0]["rows"]:
+                r = res[0]["rows"][0]
+                pref_raw = r.get("preferences")
+                pref = json.loads(pref_raw) if isinstance(pref_raw, str) else (pref_raw or {})
+                profile_data = {
+                    "username": r["username"],
+                    "display_name": r["display_name"],
+                    "password_hash": r.get("password_hash"),
+                    "preferences": pref,
+                    "created_at": r.get("created_at"),
+                    "last_active": r.get("last_active")
+                }
+                # Update local cache
+                u_dir = get_user_dir(username)
+                with open(u_dir / "profile.json", "w", encoding="utf-8") as f:
+                    json.dump(profile_data, f, indent=2)
+                return profile_data
+        except Exception as e:
+            logger.warning(f"Turso get_profile error: {e}")
+
+    # Fallback to local file
     p_path = get_profile_path(username)
     if p_path.exists():
         try:
@@ -97,7 +156,6 @@ def verify_profile_password(username: str, password: str) -> bool:
     p = get_profile(username)
     if not p:
         return False
-    # If no password_hash was set yet (legacy), allow blank or require setting
     stored_hash = p.get("password_hash")
     if not stored_hash:
         return True
@@ -107,33 +165,49 @@ def create_profile(username: str, display_name: str = None, password: str = None
     clean_username = username.strip().lower().replace(" ", "_")
     user_dir = get_user_dir(clean_username)
     now = datetime.now().isoformat()
+    pwd_hash = generate_password_hash(password) if password else None
+    prefs = preferences or {"theme": "dark", "passing_score": 70}
     
     profile_data = {
         "username": clean_username,
         "display_name": display_name or clean_username.capitalize(),
-        "password_hash": generate_password_hash(password) if password else None,
+        "password_hash": pwd_hash,
         "created_at": now,
         "last_active": now,
-        "preferences": preferences or {
-            "theme": "dark",
-            "passing_score": 70
-        }
+        "preferences": prefs
     }
     
+    # Save local
     with open(user_dir / "profile.json", "w", encoding="utf-8") as f:
         json.dump(profile_data, f, indent=2)
-        
     init_user_db(clean_username)
+
+    # Save to Turso if enabled
+    if is_turso_enabled():
+        try:
+            execute_turso_pipeline([{
+                "sql": """
+                INSERT INTO profiles (username, display_name, password_hash, preferences, created_at, last_active)
+                VALUES (?, ?, ?, ?, ?, ?)
+                ON CONFLICT(username) DO UPDATE SET
+                    display_name = excluded.display_name,
+                    password_hash = excluded.password_hash,
+                    preferences = excluded.preferences,
+                    last_active = excluded.last_active;
+                """,
+                "args": [clean_username, profile_data["display_name"], pwd_hash, json.dumps(prefs), now, now]
+            }])
+        except Exception as e:
+            logger.error(f"Failed to create profile in Turso: {e}")
+
     return profile_data
 
 def update_profile(username: str, display_name: str = None, new_password: str = None, current_password: str = None) -> tuple:
-    """Updates profile display name or password. Returns (success: bool, message: str)"""
     p = get_profile(username)
     if not p:
         return False, "Profile not found."
 
     stored_hash = p.get("password_hash")
-    # Verify current password if a password was already set
     if stored_hash:
         if not current_password or not check_password_hash(stored_hash, current_password):
             return False, "Current password is incorrect."
@@ -144,21 +218,63 @@ def update_profile(username: str, display_name: str = None, new_password: str = 
     if new_password and new_password.strip():
         p["password_hash"] = generate_password_hash(new_password.strip())
 
-    p["last_active"] = datetime.now().isoformat()
+    now = datetime.now().isoformat()
+    p["last_active"] = now
 
+    # Save local
     with open(get_profile_path(username), "w", encoding="utf-8") as f:
         json.dump(p, f, indent=2)
+
+    # Update Turso if enabled
+    if is_turso_enabled():
+        try:
+            execute_turso_pipeline([{
+                "sql": """
+                UPDATE profiles 
+                SET display_name = ?, password_hash = ?, last_active = ?
+                WHERE username = ?;
+                """,
+                "args": [p["display_name"], p.get("password_hash"), now, username]
+            }])
+        except Exception as e:
+            logger.error(f"Failed to update profile in Turso: {e}")
 
     return True, "Profile updated successfully!"
 
 def update_last_active(username: str):
     p = get_profile(username)
+    now = datetime.now().isoformat()
     if p:
-        p["last_active"] = datetime.now().isoformat()
+        p["last_active"] = now
         with open(get_profile_path(username), "w", encoding="utf-8") as f:
             json.dump(p, f, indent=2)
+            
+    if is_turso_enabled():
+        try:
+            execute_turso_pipeline([{
+                "sql": "UPDATE profiles SET last_active = ? WHERE username = ?;",
+                "args": [now, username]
+            }])
+        except Exception as e:
+            logger.debug(f"Turso update_last_active error: {e}")
 
 def get_chunk_progress(username: str, topic_slug: str, module_slug: str, chunk_slug: str):
+    if is_turso_enabled():
+        try:
+            res = execute_turso_pipeline([{
+                "sql": """
+                SELECT topic_slug, module_slug, chunk_slug, content_read, read_at, quiz_passed, best_score, attempts
+                FROM chunk_progress 
+                WHERE username = ? AND topic_slug = ? AND module_slug = ? AND chunk_slug = ?;
+                """,
+                "args": [username, topic_slug, module_slug, chunk_slug]
+            }])
+            if res and res[0]["rows"]:
+                return res[0]["rows"][0]
+        except Exception as e:
+            logger.warning(f"Turso get_chunk_progress error: {e}")
+
+    # Local fallback
     conn = get_db(username)
     cursor = conn.cursor()
     cursor.execute("""
@@ -181,9 +297,11 @@ def get_chunk_progress(username: str, topic_slug: str, module_slug: str, chunk_s
     }
 
 def mark_chunk_read(username: str, topic_slug: str, module_slug: str, chunk_slug: str):
+    now = datetime.now().isoformat()
+
+    # Always update local
     conn = get_db(username)
     cursor = conn.cursor()
-    now = datetime.now().isoformat()
     cursor.execute("""
         INSERT INTO chunk_progress (topic_slug, module_slug, chunk_slug, content_read, read_at)
         VALUES (?, ?, ?, 1, ?)
@@ -193,23 +311,39 @@ def mark_chunk_read(username: str, topic_slug: str, module_slug: str, chunk_slug
     """, (topic_slug, module_slug, chunk_slug, now))
     conn.commit()
     conn.close()
+
+    # Update Turso if active
+    if is_turso_enabled():
+        try:
+            execute_turso_pipeline([{
+                "sql": """
+                INSERT INTO chunk_progress (username, topic_slug, module_slug, chunk_slug, content_read, read_at)
+                VALUES (?, ?, ?, ?, 1, ?)
+                ON CONFLICT(username, topic_slug, module_slug, chunk_slug) DO UPDATE SET
+                    content_read = 1,
+                    read_at = COALESCE(chunk_progress.read_at, excluded.read_at);
+                """,
+                "args": [username, topic_slug, module_slug, chunk_slug, now]
+            }])
+        except Exception as e:
+            logger.error(f"Turso mark_chunk_read error: {e}")
+
     return True
 
 def save_quiz_attempt(username: str, topic_slug: str, module_slug: str, chunk_slug: str,
                       score: int, total_questions: int, correct_count: int,
                       answers: dict, passing_score: int = 70):
-    conn = get_db(username)
-    cursor = conn.cursor()
     now = datetime.now().isoformat()
     passed = 1 if score >= passing_score else 0
 
-    # Record in history
+    # 1. Save local
+    conn = get_db(username)
+    cursor = conn.cursor()
     cursor.execute("""
         INSERT INTO quiz_attempts (topic_slug, module_slug, chunk_slug, score, total_questions, correct_count, answers, attempted_at)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     """, (topic_slug, module_slug, chunk_slug, score, total_questions, correct_count, json.dumps(answers), now))
 
-    # Update or insert chunk progress
     cursor.execute("""
         INSERT INTO chunk_progress (topic_slug, module_slug, chunk_slug, content_read, read_at, quiz_passed, best_score, attempts)
         VALUES (?, ?, ?, 1, ?, ?, ?, 1)
@@ -218,9 +352,35 @@ def save_quiz_attempt(username: str, topic_slug: str, module_slug: str, chunk_sl
             best_score = MAX(best_score, excluded.best_score),
             attempts = attempts + 1
     """, (topic_slug, module_slug, chunk_slug, now, passed, score))
-
     conn.commit()
     conn.close()
+
+    # 2. Save to Turso
+    if is_turso_enabled():
+        try:
+            execute_turso_pipeline([
+                {
+                    "sql": """
+                    INSERT INTO quiz_attempts (username, topic_slug, module_slug, chunk_slug, score, total_questions, correct_count, answers, attempted_at)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
+                    """,
+                    "args": [username, topic_slug, module_slug, chunk_slug, score, total_questions, correct_count, json.dumps(answers), now]
+                },
+                {
+                    "sql": """
+                    INSERT INTO chunk_progress (username, topic_slug, module_slug, chunk_slug, content_read, read_at, quiz_passed, best_score, attempts)
+                    VALUES (?, ?, ?, ?, 1, ?, ?, ?, 1)
+                    ON CONFLICT(username, topic_slug, module_slug, chunk_slug) DO UPDATE SET
+                        quiz_passed = MAX(chunk_progress.quiz_passed, excluded.quiz_passed),
+                        best_score = MAX(chunk_progress.best_score, excluded.best_score),
+                        attempts = chunk_progress.attempts + 1;
+                    """,
+                    "args": [username, topic_slug, module_slug, chunk_slug, now, passed, score]
+                }
+            ])
+        except Exception as e:
+            logger.error(f"Turso save_quiz_attempt error: {e}")
+
     return {"passed": bool(passed), "score": score, "best_score": score}
 
 def get_module_progress(username: str, topic_slug: str, module_slug: str, chunks: list):
@@ -228,15 +388,33 @@ def get_module_progress(username: str, topic_slug: str, module_slug: str, chunks
     if not chunks:
         return {"percentage": 0, "status": "Not Started", "completed_count": 0, "total": 0}
 
-    conn = get_db(username)
-    cursor = conn.cursor()
-    cursor.execute("""
-        SELECT chunk_slug, content_read, quiz_passed, best_score 
-        FROM chunk_progress 
-        WHERE topic_slug = ? AND module_slug = ?
-    """, (topic_slug, module_slug))
-    rows = {r["chunk_slug"]: dict(r) for r in cursor.fetchall()}
-    conn.close()
+    rows = {}
+    if is_turso_enabled():
+        try:
+            res = execute_turso_pipeline([{
+                "sql": """
+                SELECT chunk_slug, content_read, quiz_passed, best_score 
+                FROM chunk_progress 
+                WHERE username = ? AND topic_slug = ? AND module_slug = ?;
+                """,
+                "args": [username, topic_slug, module_slug]
+            }])
+            if res and res[0]["rows"] is not None:
+                rows = {r["chunk_slug"]: r for r in res[0]["rows"]}
+        except Exception as e:
+            logger.warning(f"Turso get_module_progress error: {e}")
+
+    # Fallback to local if Turso rows empty or disabled
+    if not rows:
+        conn = get_db(username)
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT chunk_slug, content_read, quiz_passed, best_score 
+            FROM chunk_progress 
+            WHERE topic_slug = ? AND module_slug = ?
+        """, (topic_slug, module_slug))
+        rows = {r["chunk_slug"]: dict(r) for r in cursor.fetchall()}
+        conn.close()
 
     total = len(chunks)
     completed = 0
@@ -267,6 +445,23 @@ def get_module_progress(username: str, topic_slug: str, module_slug: str, chunks
     }
 
 def get_recent_activity(username: str, limit: int = 5):
+    if is_turso_enabled():
+        try:
+            res = execute_turso_pipeline([{
+                "sql": """
+                SELECT topic_slug, module_slug, chunk_slug, score, total_questions, correct_count, attempted_at
+                FROM quiz_attempts
+                WHERE username = ?
+                ORDER BY attempted_at DESC
+                LIMIT ?;
+                """,
+                "args": [username, limit]
+            }])
+            if res and res[0]["rows"] is not None:
+                return res[0]["rows"]
+        except Exception as e:
+            logger.warning(f"Turso get_recent_activity error: {e}")
+
     conn = get_db(username)
     cursor = conn.cursor()
     cursor.execute("""
@@ -277,3 +472,4 @@ def get_recent_activity(username: str, limit: int = 5):
     rows = [dict(r) for r in cursor.fetchall()]
     conn.close()
     return rows
+

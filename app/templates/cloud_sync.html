@@ -1,0 +1,238 @@
+{% extends "base.html" %}
+
+{% block title %}Cloud Sync (Turso) — OpsForge{% endblock %}
+
+{% block breadcrumbs %}
+<a href="{{ url_for('dashboard.index') }}" class="hover:text-slate-200 transition">Dashboard</a>
+<span class="text-slate-600">/</span>
+<span class="text-slate-200 font-medium">Cloud Sync</span>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto py-6 sm:py-8 space-y-6">
+    <!-- Header Card -->
+    <div class="bg-dark-800 border border-dark-700 rounded-2xl p-6 sm:p-8 shadow-2xl space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-dark-700">
+            <div class="flex items-center space-x-3.5">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-cyan-500/20 to-blue-500/20 border border-cyan-500/40 text-cyan-400 font-bold flex items-center justify-center text-2xl shadow-inner">
+                    ☁️
+                </div>
+                <div>
+                    <h1 class="text-xl sm:text-2xl font-extrabold text-white tracking-tight">Turso Cloud Sync</h1>
+                    <p class="text-xs sm:text-sm text-slate-400">Sync your quizzes, reading progress &amp; profile across mobile and laptop</p>
+                </div>
+            </div>
+
+            <!-- Status Badge -->
+            <div>
+                {% if is_active %}
+                <span class="inline-flex items-center space-x-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-emerald-500/10 border border-emerald-500/30 text-emerald-400">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span>Live Cloud Sync Active</span>
+                </span>
+                {% else %}
+                <span class="inline-flex items-center space-x-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-slate-800 border border-dark-600 text-slate-400">
+                    <span class="w-2 h-2 rounded-full bg-slate-500"></span>
+                    <span>Local Offline Mode</span>
+                </span>
+                {% endif %}
+            </div>
+        </div>
+
+        {% if is_active %}
+        <!-- Active Details & Actions -->
+        <div class="bg-dark-900/60 border border-dark-700 rounded-xl p-4 sm:p-5 space-y-4">
+            <div>
+                <p class="text-xs font-medium text-slate-400 uppercase tracking-wider">Connected Database</p>
+                <p class="text-sm font-mono text-cyan-300 break-all mt-0.5">{{ db_url }}</p>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-3 pt-2 border-t border-dark-700/60">
+                {% if current_user %}
+                <button type="button" id="syncNowBtn" onclick="triggerManualSync()"
+                        class="px-4 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs shadow-lg shadow-cyan-600/20 transition flex items-center space-x-2">
+                    <span id="syncSpinner" class="hidden animate-spin">⏳</span>
+                    <span>🔄 Force Sync Now</span>
+                </button>
+                {% endif %}
+
+                <button type="button" onclick="testConnectionAJAX()"
+                        class="px-4 py-2 rounded-xl bg-dark-700 hover:bg-dark-600 text-slate-200 font-medium text-xs transition">
+                    ⚡ Test Connection
+                </button>
+
+                <form action="{{ url_for('auth.disconnect_sync') }}" method="POST" class="inline" onsubmit="return confirm('Disconnect Turso? OpsForge will switch back to local storage.');">
+                    <button type="submit" class="px-4 py-2 rounded-xl border border-red-500/30 hover:bg-red-500/10 text-red-400 font-medium text-xs transition">
+                        Disconnect
+                    </button>
+                </form>
+            </div>
+            <div id="testResultMsg" class="hidden text-xs font-mono p-2.5 rounded-lg border"></div>
+        </div>
+        {% endif %}
+
+        <!-- Configuration Form -->
+        <form action="{{ url_for('auth.cloud_sync') }}" method="POST" class="space-y-5">
+            <div>
+                <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+                    Turso Database URL
+                </label>
+                <input type="text" name="db_url" id="db_url" value="{{ db_url or '' }}" required
+                       placeholder="libsql://opsforge-db-[username].turso.io"
+                       class="w-full px-3.5 py-2.5 rounded-xl border border-dark-600 bg-dark-900 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 text-sm font-mono">
+                <p class="text-xs text-slate-500 mt-1">Accepts <code class="text-slate-400">libsql://...</code> or <code class="text-slate-400">https://...</code></p>
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+                    Turso Auth Token
+                </label>
+                <div class="relative">
+                    <input type="password" name="auth_token" id="auth_token" value="{{ auth_token or '' }}" required
+                           placeholder="eyJhbGciOi..."
+                           class="w-full px-3.5 py-2.5 rounded-xl border border-dark-600 bg-dark-900 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 text-sm font-mono pr-20">
+                    <button type="button" onclick="toggleTokenVisibility()"
+                            class="absolute right-2 top-2 px-2.5 py-1 text-xs text-slate-400 hover:text-slate-200 bg-dark-800 rounded border border-dark-700">
+                        Show
+                    </button>
+                </div>
+                <p class="text-xs text-slate-500 mt-1">Saved securely in your local <code class="text-slate-400">.env</code> file (git-ignored, never uploaded to GitHub).</p>
+            </div>
+
+            <div class="pt-4 flex flex-wrap items-center justify-between gap-3 border-t border-dark-700">
+                <button type="button" onclick="testConnectionAJAX()"
+                        class="px-4 py-2.5 rounded-xl bg-dark-700 hover:bg-dark-600 text-slate-300 hover:text-white font-medium text-sm transition">
+                    Test Connection
+                </button>
+
+                <div class="flex items-center space-x-3">
+                    <a href="{{ url_for('dashboard.index') }}"
+                       class="px-4 py-2.5 rounded-xl text-slate-400 hover:text-slate-200 text-sm transition">
+                        Back
+                    </a>
+                    <button type="submit"
+                            class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold text-sm shadow-lg shadow-cyan-600/25 transition">
+                        {% if is_active %}Update Connection{% else %}Connect &amp; Sync{% endif %}
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Quick Setup Guide -->
+    <div class="bg-dark-800 border border-dark-700 rounded-2xl p-6 sm:p-8 space-y-4">
+        <h2 class="text-lg font-bold text-white flex items-center space-x-2">
+            <span>🚀</span>
+            <span>How to get your free Turso credentials (in 1 minute)</span>
+        </h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs sm:text-sm text-slate-300">
+            <div class="bg-dark-900/60 border border-dark-700/80 rounded-xl p-4 space-y-2">
+                <div class="flex items-center space-x-2 text-cyan-400 font-bold">
+                    <span class="w-5 h-5 rounded-full bg-cyan-500/20 flex items-center justify-center text-xs">1</span>
+                    <span>Sign up on Turso</span>
+                </div>
+                <p class="text-slate-400">Go to <a href="https://turso.tech" target="_blank" class="text-cyan-400 underline hover:text-cyan-300">turso.tech</a> and log in with your GitHub account (1-click, no credit card required).</p>
+            </div>
+
+            <div class="bg-dark-900/60 border border-dark-700/80 rounded-xl p-4 space-y-2">
+                <div class="flex items-center space-x-2 text-cyan-400 font-bold">
+                    <span class="w-5 h-5 rounded-full bg-cyan-500/20 flex items-center justify-center text-xs">2</span>
+                    <span>Create a Database</span>
+                </div>
+                <p class="text-slate-400">Click <strong>Create Database</strong>, give it a name like <code class="bg-dark-800 text-cyan-300 px-1 py-0.5 rounded">opsforge-db</code>, and choose any nearby region.</p>
+            </div>
+
+            <div class="bg-dark-900/60 border border-dark-700/80 rounded-xl p-4 space-y-2">
+                <div class="flex items-center space-x-2 text-cyan-400 font-bold">
+                    <span class="w-5 h-5 rounded-full bg-cyan-500/20 flex items-center justify-center text-xs">3</span>
+                    <span>Copy URL &amp; Generate Token</span>
+                </div>
+                <p class="text-slate-400">Copy the <strong>Database URL</strong> (<code class="bg-dark-800 text-slate-300 px-1 py-0.5 rounded text-xs">libsql://...</code>), then click <strong>Generate Token</strong> and copy the token string.</p>
+            </div>
+
+            <div class="bg-dark-900/60 border border-dark-700/80 rounded-xl p-4 space-y-2">
+                <div class="flex items-center space-x-2 text-cyan-400 font-bold">
+                    <span class="w-5 h-5 rounded-full bg-cyan-500/20 flex items-center justify-center text-xs">4</span>
+                    <span>Paste on Both Devices</span>
+                </div>
+                <p class="text-slate-400">Paste the URL and Token here on your laptop and in Termux on your phone. Both devices will now share the same real-time cloud database!</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function toggleTokenVisibility() {
+    const input = document.getElementById("auth_token");
+    if (input.type === "password") {
+        input.type = "text";
+    } else {
+        input.type = "password";
+    }
+}
+
+async function testConnectionAJAX() {
+    const urlInput = document.getElementById("db_url").value.trim();
+    const tokenInput = document.getElementById("auth_token").value.trim();
+    const resultBox = document.getElementById("testResultMsg");
+
+    resultBox.className = "text-xs font-mono p-2.5 rounded-lg border bg-dark-900 border-cyan-500/40 text-cyan-300";
+    resultBox.innerHTML = "⏳ Testing connection to Turso...";
+    resultBox.classList.remove("hidden");
+
+    try {
+        const resp = await fetch("{{ url_for('auth.test_sync_connection') }}", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({db_url: urlInput, auth_token: tokenInput})
+        });
+        const data = await resp.json();
+        if (data.success) {
+            resultBox.className = "text-xs font-mono p-2.5 rounded-lg border bg-emerald-500/10 border-emerald-500/40 text-emerald-400";
+            resultBox.innerHTML = "✅ " + data.message;
+        } else {
+            resultBox.className = "text-xs font-mono p-2.5 rounded-lg border bg-red-500/10 border-red-500/40 text-red-400";
+            resultBox.innerHTML = "❌ " + data.message;
+        }
+    } catch (err) {
+        resultBox.className = "text-xs font-mono p-2.5 rounded-lg border bg-red-500/10 border-red-500/40 text-red-400";
+        resultBox.innerHTML = "❌ Network error: " + err.message;
+    }
+}
+
+async function triggerManualSync() {
+    const spinner = document.getElementById("syncSpinner");
+    const resultBox = document.getElementById("testResultMsg");
+    if (spinner) spinner.classList.remove("hidden");
+
+    resultBox.className = "text-xs font-mono p-2.5 rounded-lg border bg-dark-900 border-cyan-500/40 text-cyan-300";
+    resultBox.innerHTML = "⏳ Syncing local progress to Turso Cloud...";
+    resultBox.classList.remove("hidden");
+
+    try {
+        const resp = await fetch("{{ url_for('auth.sync_now') }}", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"}
+        });
+        const data = await resp.json();
+        if (data.success) {
+            resultBox.className = "text-xs font-mono p-2.5 rounded-lg border bg-emerald-500/10 border-emerald-500/40 text-emerald-400";
+            const synced = data.details || {};
+            resultBox.innerHTML = `✅ ${data.message} (Synced ${synced.progress_rows || 0} progress rows, ${synced.quiz_attempts || 0} quizzes)`;
+            setTimeout(() => { location.reload(); }, 1500);
+        } else {
+            resultBox.className = "text-xs font-mono p-2.5 rounded-lg border bg-red-500/10 border-red-500/40 text-red-400";
+            resultBox.innerHTML = "❌ " + data.message;
+        }
+    } catch (err) {
+        resultBox.className = "text-xs font-mono p-2.5 rounded-lg border bg-red-500/10 border-red-500/40 text-red-400";
+        resultBox.innerHTML = "❌ Sync error: " + err.message;
+    } finally {
+        if (spinner) spinner.classList.add("hidden");
+    }
+}
+</script>
+{% endblock %}
