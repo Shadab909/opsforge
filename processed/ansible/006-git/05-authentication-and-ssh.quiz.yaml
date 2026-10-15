@@ -1,0 +1,164 @@
+passing_score: 70
+questions:
+- type: mcq
+  question: 'What happens if a git task attempts to clone via SSH from GitHub for
+    the first time without ''accept_hostkey: yes'' or a pre-populated known_hosts
+    file?'
+  options:
+  - SSH pauses indefinitely waiting for interactive 'yes/no' confirmation, causing
+    Ansible to hang or timeout
+  - Ansible automatically accepts the key silently
+  - Git switches to unencrypted HTTP automatically
+  - The remote host deletes the SSH service
+  correct: SSH pauses indefinitely waiting for interactive 'yes/no' confirmation,
+    causing Ansible to hang or timeout
+  explanation: 'Unrecognized host keys prompt interactive confirmation; automated
+    processes hang without accept_hostkey: yes.'
+- type: mcq
+  question: Which parameter in the git module specifies the path to a private SSH
+    key file on the target host?
+  options:
+  - key_file
+  - ssh_key
+  - identity_file
+  - private_key
+  correct: key_file
+  explanation: '`key_file` designates the private key path on the managed host.'
+- type: true_false
+  question: The 'key_file' path refers to a private key on the Ansible control machine,
+    which is transferred on demand.
+  correct: false
+  explanation: '`key_file` specifies the path to an SSH key already located on the
+    remote target host.'
+- type: mcq
+  question: 'What does the ''accept_hostkey: yes'' parameter do?'
+  options:
+  - Automatically accepts and appends the remote Git server's host key to the remote
+    known_hosts file
+  - Allows any client to connect to the server without a password
+  - Generates a new host key for SSHD
+  - Disables SSH encryption
+  correct: Automatically accepts and appends the remote Git server's host key to the
+    remote known_hosts file
+  explanation: '`accept_hostkey: yes` automatically adds the fingerprint to known_hosts
+    to prevent interactive prompts.'
+- type: mcq
+  question: Where does Git store repository URLs by default on the target system after
+    cloning?
+  options:
+  - Inside <dest>/.git/config
+  - Inside /etc/git.conf
+  - In the Ansible cache directory
+  - In the Linux kernel keyring
+  correct: Inside <dest>/.git/config
+  explanation: Git saves the origin URL in the repository's `.git/config` file.
+- type: true_false
+  question: Embedding cleartext passwords or personal access tokens directly into
+    playbook YAML files is a critical security risk.
+  correct: true
+  explanation: Tokens should be stored in Ansible Vault (`ansible-vault encrypt_string`)
+    or environment variables.
+- type: mcq
+  question: What parameter passes custom arguments directly to the SSH client during
+    git operations?
+  options:
+  - ssh_opts
+  - ssh_flags
+  - ssh_args
+  - extra_ssh
+  correct: ssh_opts
+  explanation: '`ssh_opts` allows passing arbitrary SSH options like `-o StrictHostKeyChecking=no`.'
+- type: mcq
+  question: Why are Git Deploy Keys preferred over developer personal access tokens
+    for production servers?
+  options:
+  - Deploy keys can be scoped to read-only access for a single specific repository
+  - Deploy keys bypass SSH encryption for faster transfers
+  - Personal tokens expire every 10 minutes
+  - GitHub does not support tokens on Linux
+  correct: Deploy keys can be scoped to read-only access for a single specific repository
+  explanation: 'Deploy keys follow the principle of least privilege: read-only access
+    limited to one repository.'
+- type: true_false
+  question: The private key specified in 'key_file' must have appropriate permissions
+    (e.g. 0600) or OpenSSH will refuse to use it.
+  correct: true
+  explanation: OpenSSH ignores private keys that are readable by group or others (permission
+    too open error).
+- type: mcq
+  question: Which module can be used prior to the git task to deploy an SSH private
+    key with 0600 permissions?
+  options:
+  - ansible.builtin.copy
+  - ansible.builtin.ping
+  - ansible.builtin.user
+  - ansible.builtin.service
+  correct: ansible.builtin.copy
+  explanation: 'Use `copy` with `mode: ''0600''` to securely place the SSH private
+    key.'
+- type: true_false
+  question: SSH Agent Forwarding can be configured in ansible.cfg by setting 'ssh_args
+    = -o ForwardAgent=yes'.
+  correct: true
+  explanation: Agent forwarding allows the remote target to use the control node's
+    local SSH agent credentials.
+- type: mcq
+  question: What format is used for an SSH repository URL on GitHub?
+  options:
+  - git@github.com:owner/repo.git
+  - ssh://github.com/owner/repo
+  - https://github.com/owner/repo.git
+  - git://github.com/owner/repo
+  correct: git@github.com:owner/repo.git
+  explanation: '`git@github.com:owner/repo.git` is the standard SCP-style SSH syntax
+    for GitHub.'
+- type: true_false
+  question: 'Using ''accept_hostkey: yes'' modifies the known_hosts file of the user
+    executing the task on the target machine.'
+  correct: true
+  explanation: It appends the key to `~/.ssh/known_hosts` of the remote user.
+- type: mcq
+  question: How can you securely provide a GitHub token to a git task without committing
+    it to Git in plain text?
+  options:
+  - 'Use Ansible Vault to encrypt the variable: {{ vault_github_token }}'
+  - Write it in a comment in the playbook
+  - Store it in /tmp/token.txt with 0777 permissions
+  - Include it in the git commit message
+  correct: 'Use Ansible Vault to encrypt the variable: {{ vault_github_token }}'
+  explanation: Ansible Vault encrypts sensitive strings using AES-256.
+- type: true_false
+  question: If an SSH deploy key has a passphrase, Ansible will automatically detect
+    it and prompt for it on the terminal during execution.
+  correct: false
+  explanation: Passphrase-protected keys will fail in non-interactive Ansible tasks
+    unless loaded into an active ssh-agent.
+- type: mcq
+  question: Which SSH key algorithm is modern, highly secure, and generates compact
+    keys recommended for deploy keys?
+  options:
+  - Ed25519
+  - DSA
+  - DES
+  - MD5
+  correct: Ed25519
+  explanation: Ed25519 is the modern standard for fast, compact, and secure SSH keys.
+- type: true_false
+  question: 'Setting ''ssh_opts: "-o StrictHostKeyChecking=no"'' completely disables
+    SSH host authenticity verification.'
+  correct: true
+  explanation: Disabling StrictHostKeyChecking skips host key validation, which is
+    convenient but vulnerable to MITM attacks.
+- type: mcq
+  question: What is the security risk of leaving personal access tokens in the .git/config
+    on multi-tenant production servers?
+  options:
+  - Any user with read access to the directory can extract the token and impersonate
+    the developer
+  - The token corrupts Git branches
+  - The Linux kernel crashes upon reading the file
+  - It makes the repository public
+  correct: Any user with read access to the directory can extract the token and impersonate
+    the developer
+  explanation: Cleartext tokens in config files can be stolen by unauthorized processes
+    or users with local read access.

@@ -1,0 +1,172 @@
+passing_score: 70
+questions:
+- type: mcq
+  question: What is the primary definition of an Ansible module?
+  options:
+  - A discrete unit of executable code that performs a specific system task on managed
+    nodes
+  - A configuration file written in YAML that declares host inventory
+  - A daemon running continuously in the background on target servers
+  - A database schema used to track package versions across hosts
+  correct: A discrete unit of executable code that performs a specific system task
+    on managed nodes
+  explanation: Modules are the actual executable code units (often Python scripts)
+    that perform specific tasks on remote hosts and return JSON.
+- type: mcq
+  question: What format do Ansible modules use to return data back to the control
+    machine?
+  options:
+  - JSON
+  - XML
+  - Plain raw text only
+  - Binary protocol buffers
+  correct: JSON
+  explanation: Ansible modules output their results as a JSON string to stdout, which
+    the control node parses into dictionaries.
+- type: true_false
+  question: Ansible requires a persistent background daemon to be installed and running
+    on remote managed hosts before modules can run.
+  correct: false
+  explanation: Ansible is agentless. It transfers module scripts over SSH on demand,
+    executes them with Python, and immediately cleans them up.
+- type: mcq
+  question: 'What does the ''changed: false'' return key signify?'
+  options:
+  - The target host was already in the desired state, so no modifications were made
+  - The task failed to execute due to an SSH authentication error
+  - The task encountered a syntax error in the YAML definition
+  - Ansible skipped the task because the host was unreachable
+  correct: The target host was already in the desired state, so no modifications were
+    made
+  explanation: Idempotent modules check the current state; if the system is already
+    configured as requested, 'changed' is set to false.
+- type: mcq
+  question: What happens to the temporary module script on the remote host after execution
+    completes?
+  options:
+  - Ansible automatically removes the temporary files and directories
+  - It is permanently stored in /usr/bin/ansible-modules for caching
+  - It remains in /tmp indefinitely until reboot
+  - It is committed to the local git repository
+  correct: Ansible automatically removes the temporary files and directories
+  explanation: Ansible automatically deletes the temporary script from ~/.ansible/tmp/
+    after capturing the JSON output.
+- type: true_false
+  question: Modules can only be written in Python and cannot be developed in any other
+    programming language.
+  correct: false
+  explanation: While most Linux modules are written in Python, Windows modules use
+    PowerShell, and custom modules can be written in any language that outputs JSON.
+- type: mcq
+  question: Which return key indicates the process exit status for command/shell executions,
+    where 0 means success?
+  options:
+  - rc
+  - exit_status
+  - status_code
+  - error_level
+  correct: rc
+  explanation: '''rc'' stands for return code. In Unix/Linux standards, rc=0 indicates
+    successful command completion.'
+- type: mcq
+  question: Where are temporary module scripts typically staged on the target host
+    during execution?
+  options:
+  - In ~/.ansible/tmp/ under the connected user's home directory
+  - In /etc/ansible/runtime/
+  - In /var/log/ansible/
+  - Directly in /dev/shm/ramdisk/
+  correct: In ~/.ansible/tmp/ under the connected user's home directory
+  explanation: Ansible creates a temporary directory in ~/.ansible/tmp/ (configurable
+    via ansible.cfg) to upload and execute module scripts.
+- type: true_false
+  question: In a declarative automation model, modules specify the desired end state
+    rather than the individual steps needed to reach it.
+  correct: true
+  explanation: Declarative design allows you to specify 'state=present' or 'state=started',
+    leaving the logic of reaching that state to the module.
+- type: mcq
+  question: If a module fails during execution, which return key is set to true?
+  options:
+  - failed
+  - error
+  - broken
+  - critical
+  correct: failed
+  explanation: 'When an unhandled exception or explicit fail_json() is called, Ansible
+    marks ''failed: true'' in the result dictionary.'
+- type: mcq
+  question: What protocol does Ansible primarily use to connect and transfer module
+    scripts to Linux nodes?
+  options:
+  - SSH (SFTP / SCP)
+  - Telnet
+  - RDP
+  - SNMP
+  correct: SSH (SFTP / SCP)
+  explanation: Ansible uses standard OpenSSH or Paramiko to connect to Linux systems
+    and transfer payload files.
+- type: true_false
+  question: Because Ansible modules are executed on the remote target host, that target
+    host must have a compatible Python interpreter installed.
+  correct: true
+  explanation: Standard Ansible modules require a Python runtime on the target host
+    (typically Python 3.6+ on modern Linux distributions).
+- type: mcq
+  question: Which of the following is NOT a standard return field in Ansible module
+    execution results?
+  options:
+  - git_commit_sha
+  - changed
+  - failed
+  - msg
+  correct: git_commit_sha
+  explanation: '''git_commit_sha'' is not a standard common return key, whereas ''changed'',
+    ''failed'', and ''msg'' are standard.'
+- type: true_false
+  question: An idempotent task will produce the exact same system state whether executed
+    once or run twenty consecutive times.
+  correct: true
+  explanation: Idempotency ensures that subsequent runs with the same parameters do
+    not alter an already compliant system.
+- type: mcq
+  question: What is the primary role of the Ansible control node during module execution?
+  options:
+  - Packaging module code, dispatching it to target nodes, and aggregating the returned
+    JSON results
+  - Compiling C binaries for remote kernel modules
+  - Serving web pages for client browsers
+  - Acting as the default gateway for remote network traffic
+  correct: Packaging module code, dispatching it to target nodes, and aggregating
+    the returned JSON results
+  explanation: The control node orchestrates execution by preparing module payloads,
+    shipping them over SSH, and analyzing responses.
+- type: true_false
+  question: If a module executes and detects that a file already has the exact requested
+    permissions and content, 'changed' will be true.
+  correct: false
+  explanation: If no modifications were needed or made to the file, 'changed' will
+    be false.
+- type: mcq
+  question: What return field provides standard error output from executed subcommands?
+  options:
+  - stderr
+  - err_output
+  - std_error
+  - system_log
+  correct: stderr
+  explanation: '''stderr'' captures the standard error stream output from commands
+    executed by the module.'
+- type: mcq
+  question: What is the key benefit of modules returning structured JSON instead of
+    unstructured raw terminal text?
+  options:
+  - Playbooks and conditional logic can easily inspect, register, and evaluate specific
+    fields programmatically
+  - JSON files run 50 times faster than binary code
+  - Raw text cannot be transmitted over SSH connections
+  - JSON automatically encrypts all passwords by default
+  correct: Playbooks and conditional logic can easily inspect, register, and evaluate
+    specific fields programmatically
+  explanation: 'Structured JSON allows Ansible to evaluate variables, conditionals
+    (`when: result.changed`), and loop over return data easily.'

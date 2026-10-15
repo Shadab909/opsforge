@@ -1,0 +1,168 @@
+passing_score: 70
+questions:
+- type: mcq
+  question: How does Ansible's 'ping' module differ from the traditional ICMP 'ping'
+    command?
+  options:
+  - Ansible ping connects via SSH and executes Python code; ICMP ping only sends network
+    echo packets
+  - Ansible ping only works on local Docker containers
+  - Ansible ping checks web servers via HTTP GET requests
+  - There is no difference; Ansible ping executes /bin/ping under the hood
+  correct: Ansible ping connects via SSH and executes Python code; ICMP ping only
+    sends network echo packets
+  explanation: Ansible's ping module requires SSH access, valid credentials, and a
+    working Python interpreter on the remote host.
+- type: mcq
+  question: What is the default return value key and message for a successful ping
+    execution?
+  options:
+  - '"ping": "pong"'
+  - '"status": "online"'
+  - '"alive": true'
+  - '"icmp": "reply"'
+  correct: '"ping": "pong"'
+  explanation: By default, the ping module sets the key 'ping' to the string 'pong'.
+- type: true_false
+  question: When 'ansible all -m ping' succeeds, the returned 'changed' property is
+    set to true.
+  correct: false
+  explanation: Testing connectivity does not modify the target system state, so 'changed'
+    is always false.
+- type: mcq
+  question: What occurs when you pass the argument 'data=crash' to the ping module?
+  options:
+  - The module raises an unhandled exception ('boom') to simulate a module failure
+  - The target host operating system triggers a kernel panic
+  - Ansible reboots the remote server immediately
+  - Ansible deletes the target from the inventory
+  correct: The module raises an unhandled exception ('boom') to simulate a module
+    failure
+  explanation: The ping source code explicitly checks if data == 'crash' and raises
+    an exception for testing error handlers.
+- type: mcq
+  question: Which command tests connectivity using the ping module against all managed
+    nodes in inventory?
+  options:
+  - ansible all -m ping
+  - ansible-playbook ping all
+  - ansible-galaxy ping --all
+  - ansible-inventory -m ping
+  correct: ansible all -m ping
+  explanation: 'The syntax for an ad-hoc command is: ansible <hosts> -m <module>.'
+- type: true_false
+  question: The ping module supports check mode ('--check') because it makes no permanent
+    changes to target hosts.
+  correct: true
+  explanation: The source code specifies 'supports_check_mode=True'.
+- type: mcq
+  question: If you execute 'ansible all -m ping -a "data=ready"', what will the JSON
+    response contain?
+  options:
+  - '"ping": "ready"'
+  - '"ping": "pong"'
+  - '"status": "ready"'
+  - 'Syntax Error: ping does not accept arguments'
+  correct: '"ping": "ready"'
+  explanation: The 'data' parameter overrides the default 'pong' value with whatever
+    string is provided.
+- type: mcq
+  question: If a target machine has port 22 blocked by a firewall, what result will
+    'ansible target -m ping' produce?
+  options:
+  - UNREACHABLE with an SSH connection timeout error
+  - 'SUCCESS with ping: pong'
+  - 'CHANGED with rc: 1'
+  - A successful ICMP echo reply
+  correct: UNREACHABLE with an SSH connection timeout error
+  explanation: Because Ansible ping operates over SSH, blocked SSH ports cause an
+    UNREACHABLE error.
+- type: true_false
+  question: If a host responds to standard terminal 'ping 10.0.0.1', Ansible is guaranteed
+    to be able to run tasks on it.
+  correct: false
+  explanation: ICMP ping only proves network routing; SSH might be closed, credentials
+    might be wrong, or Python might be missing.
+- type: mcq
+  question: What Python helper function inside Ansible modules is used to send successful
+    JSON results back to the control machine?
+  options:
+  - module.exit_json()
+  - module.return_success()
+  - sys.exit(0)
+  - print(json.dump())
+  correct: module.exit_json()
+  explanation: The AnsibleModule class provides `module.exit_json(**result)` to format
+    and return success data.
+- type: mcq
+  question: What Fully Qualified Collection Name (FQCN) refers to the core built-in
+    ping module?
+  options:
+  - ansible.builtin.ping
+  - community.general.ping
+  - ansible.core.ping
+  - core.network.ping
+  correct: ansible.builtin.ping
+  explanation: Core modules distributed with ansible-core live under the `ansible.builtin`
+    collection namespace.
+- type: true_false
+  question: The ping module requires root/sudo privileges and must always be run with
+    '--become'.
+  correct: false
+  explanation: The ping module executes simple non-privileged Python code and does
+    not require administrative privileges.
+- type: mcq
+  question: What fact is often discovered and displayed in the ping output if Python
+    interpreter discovery is active?
+  options:
+  - discovered_interpreter_python
+  - installed_kernel_headers
+  - remote_root_password
+  - current_battery_level
+  correct: discovered_interpreter_python
+  explanation: Ansible automatically discovers the path to the remote Python binary
+    (e.g. /usr/bin/python3).
+- type: mcq
+  question: What Python class forms the foundation of standard Ansible module development
+    as seen in ping.py?
+  options:
+  - AnsibleModule
+  - BaseTaskRunner
+  - PluginEngine
+  - PlaybookContext
+  correct: AnsibleModule
+  explanation: From `ansible.module_utils.basic import AnsibleModule`. It handles
+    parsing arguments, check mode, and JSON output.
+- type: true_false
+  question: Running 'ansible all -m ping' requires an existing playbook file on the
+    control machine.
+  correct: false
+  explanation: Ad-hoc commands run directly from the command line against an inventory
+    without requiring a playbook YAML file.
+- type: mcq
+  question: In the ping module code, what parameter type is defined for the 'data'
+    argument?
+  options:
+  - str
+  - int
+  - bool
+  - dict
+  correct: str
+  explanation: 'In argument_spec, data is defined as: `data=dict(type=''str'', default=''pong'')`.'
+- type: mcq
+  question: If Python is completely uninstalled on the remote host, which module can
+    be used to bootstrap Python before using ping?
+  options:
+  - raw
+  - copy
+  - template
+  - setup
+  correct: raw
+  explanation: The `raw` module bypasses the Python subsystem entirely and sends commands
+    directly via SSH, perfect for `apt install python3`.
+- type: true_false
+  question: Passing invalid arguments to ping (e.g. '-a foo=bar') will cause Ansible
+    to reject the task with an unsupported parameter error.
+  correct: true
+  explanation: AnsibleModule validates arguments against `argument_spec` and rejects
+    unknown parameters.

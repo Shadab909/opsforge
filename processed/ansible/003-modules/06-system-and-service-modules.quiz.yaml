@@ -1,0 +1,190 @@
+passing_score: 70
+questions:
+- type: mcq
+  question: 'What is the difference between ''state: present'' and ''state: latest''
+    in package manager modules like apt or dnf?'
+  options:
+  - '''present'' ensures the package is installed without upgrading; ''latest'' upgrades
+    it to the newest available repository version'
+  - '''latest'' only works on beta packages'
+  - '''present'' installs packages from source code; ''latest'' uses binary packages'
+  - There is no difference; both are synonyms
+  correct: '''present'' ensures the package is installed without upgrading; ''latest''
+    upgrades it to the newest available repository version'
+  explanation: '''present'' is satisfied if any version is currently installed; ''latest''
+    forces an upgrade if a newer version exists.'
+- type: mcq
+  question: 'In the user module, what critical risk occurs if you specify ''groups:
+    docker'' without setting ''append: yes''?'
+  options:
+  - The user will be removed from all other existing secondary groups (such as sudo
+    or adm)
+  - The user account will be locked immediately
+  - The user's home directory will be deleted
+  - The task will throw a syntax validation error
+  correct: The user will be removed from all other existing secondary groups (such
+    as sudo or adm)
+  explanation: 'By default, `groups` replaces the user''s secondary group membership
+    unless `append: yes` is explicitly set.'
+- type: mcq
+  question: 'What does the ''enabled: yes'' parameter configure in the service module?'
+  options:
+  - Ensures the service is configured to start automatically at system boot
+  - Starts the service immediately in the current session
+  - Enables debugging logs for the daemon
+  - Allows any unprivileged user to start and stop the service
+  correct: Ensures the service is configured to start automatically at system boot
+  explanation: '''enabled: yes'' runs the equivalent of `systemctl enable <service>`
+    for persistence across reboots.'
+- type: true_false
+  question: 'Setting ''state: restarted'' on a service task will always report ''changed:
+    true'' every time it runs.'
+  correct: true
+  explanation: 'Because a restart forces an immediate process bounce, Ansible cannot
+    make it idempotent and always marks changed: true.'
+- type: mcq
+  question: How can you prevent the 'apt' module from running a slow 'apt-get update'
+    on every single playbook run?
+  options:
+  - 'Set ''cache_valid_time: 3600'' (or another duration in seconds)'
+  - 'Set ''update_cache: never'''
+  - Disable the apt module in ansible.cfg
+  - Remove the sources.list file
+  correct: 'Set ''cache_valid_time: 3600'' (or another duration in seconds)'
+  explanation: '''cache_valid_time'' instructs Ansible to skip updating the cache
+    if it was updated within that time window.'
+- type: mcq
+  question: Which service state sends a SIGHUP or reload signal to reread configuration
+    files without closing active connections?
+  options:
+  - reloaded
+  - restarted
+  - started
+  - refreshed
+  correct: reloaded
+  explanation: '''state: reloaded'' reloads configuration without stopping or dropping
+    active network connections.'
+- type: true_false
+  question: 'Privilege escalation with ''become: yes'' can be defined at the play
+    level, task level, or block level.'
+  correct: true
+  explanation: 'You can declare `become: yes` globally for the entire play or selectively
+    on specific tasks.'
+- type: mcq
+  question: What parameter in the user module ensures that a service account cannot
+    be used for interactive shell logins?
+  options:
+  - 'shell: /sbin/nologin (or /bin/false)'
+  - 'login: disabled'
+  - 'state: service'
+  - 'interactive: no'
+  correct: 'shell: /sbin/nologin (or /bin/false)'
+  explanation: Setting the shell to `/sbin/nologin` or `/bin/false` prevents terminal
+    login for system users.
+- type: mcq
+  question: 'When deleting a user with ''state: absent'', how do you ensure their
+    home directory is also removed from the disk?'
+  options:
+  - 'remove: yes'
+  - 'delete_home: true'
+  - 'purge: yes'
+  - 'force: true'
+  correct: 'remove: yes'
+  explanation: 'The user module uses `remove: yes` to delete the user''s home directory
+    and mail spool when removing an account.'
+- type: true_false
+  question: 'Installing a package on Ubuntu using ''ansible.builtin.apt'' requires
+    administrative privileges (become: yes).'
+  correct: true
+  explanation: Installing system packages requires root permissions.
+- type: mcq
+  question: Which parameter in the apt module removes configuration files alongside
+    package binaries when deleting a package?
+  options:
+  - 'purge: yes'
+  - 'clean: yes'
+  - 'autoremove: yes'
+  - 'force: yes'
+  correct: 'purge: yes'
+  explanation: '`purge: yes` (equivalent to `apt-get purge`) removes configuration
+    files as well.'
+- type: mcq
+  question: What parameter in the 'systemd' module is used to reload the systemd manager
+    configuration after editing unit files?
+  options:
+  - 'daemon_reload: yes'
+  - 'reload_systemd: true'
+  - 'refresh_units: yes'
+  - 'systemctl_daemon: reload'
+  correct: 'daemon_reload: yes'
+  explanation: '`daemon_reload: yes` runs `systemctl daemon-reload` to pick up newly
+    created or edited unit files.'
+- type: true_false
+  question: The generic 'service' module automatically works across systems using
+    systemd, SysV init, OpenRC, or Upstart.
+  correct: true
+  explanation: The generic `service` module detects the underlying init system and
+    delegates commands accordingly.
+- type: mcq
+  question: What parameter in the user module sets the user's numeric User ID (UID)?
+  options:
+  - uid
+  - user_id
+  - id
+  - numeric_uid
+  correct: uid
+  explanation: The `uid` parameter assigns a specific numeric user ID to the account.
+- type: mcq
+  question: How can you install multiple packages in a single task using the apt module?
+  options:
+  - Pass a YAML list of package names to the 'name' parameter
+  - Run the apt module multiple times in parallel threads
+  - Separate package names with semicolons in a single string
+  - The apt module can only install one package per task
+  correct: Pass a YAML list of package names to the 'name' parameter
+  explanation: '`name: [nginx, curl, git]` installs all listed packages in a single
+    batch transaction.'
+- type: true_false
+  question: 'If a service is already running, executing a task with ''state: started''
+    will report ''changed: false''.'
+  correct: true
+  explanation: Because the service is already in the requested state (started), no
+    action is taken (idempotent).
+- type: mcq
+  question: What parameter in the user module specifies the primary group for a user?
+  options:
+  - group
+  - primary_group
+  - main_group
+  - gid
+  correct: group
+  explanation: '`group` sets the primary group, while `groups` sets secondary/supplementary
+    groups.'
+- type: true_false
+  question: 'Setting ''update_cache: yes'' without specifying a package ''name'' in
+    the apt module will run ''apt-get update'' alone.'
+  correct: true
+  explanation: You can refresh repository indices without installing any packages
+    by omitting `name`.
+- type: mcq
+  question: What is the equivalent module for 'apt' on Red Hat Enterprise Linux and
+    Fedora systems?
+  options:
+  - dnf (or yum)
+  - zypper
+  - apk
+  - pacman
+  correct: dnf (or yum)
+  explanation: '`ansible.builtin.dnf` (and legacy `yum`) manages packages on RHEL,
+    CentOS, Rocky, and Fedora.'
+- type: mcq
+  question: How do you specify which user to become when privilege escalation is active
+    (defaults to root)?
+  options:
+  - 'become_user: <username>'
+  - 'sudo_user: <username>'
+  - 'as_user: <username>'
+  - 'run_as: <username>'
+  correct: 'become_user: <username>'
+  explanation: '`become_user` defines the target user for privilege escalation (e.g.
+    `become_user: postgres`).'

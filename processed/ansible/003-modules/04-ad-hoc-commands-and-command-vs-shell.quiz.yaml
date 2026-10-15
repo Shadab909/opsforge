@@ -1,0 +1,189 @@
+passing_score: 70
+questions:
+- type: mcq
+  question: What is the default module used when 'ansible <hosts> -a "command"' is
+    executed without the '-m' flag?
+  options:
+  - command
+  - shell
+  - raw
+  - ping
+  correct: command
+  explanation: If no '-m' flag is specified in an ad-hoc command, Ansible defaults
+    to 'command'.
+- type: mcq
+  question: Why will the command 'ansible all -m command -a "cat /etc/os-release |
+    grep VERSION"' fail to pipe output?
+  options:
+  - The 'command' module executes directly without a shell, so pipes ('|') are not
+    supported
+  - The control node disables pipes for security reasons
+  - The 'cat' command is not supported on Linux
+  - Ansible requires Python 2 to evaluate pipe symbols
+  correct: The 'command' module executes directly without a shell, so pipes ('|')
+    are not supported
+  explanation: The 'command' module executes the executable directly without spawning
+    a subshell, so pipe and redirection operators do not work.
+- type: mcq
+  question: Which execution module should be used when you need pipe operations, stream
+    redirection (>), or shell variables ($VAR)?
+  options:
+  - shell
+  - command
+  - copy
+  - file
+  correct: shell
+  explanation: The 'shell' module runs commands through `/bin/sh -c`, enabling pipes,
+    redirects, and environment variable expansion.
+- type: true_false
+  question: 'By default, tasks using the ''command'' or ''shell'' module will always
+    report ''changed: true'' every time they run.'
+  correct: true
+  explanation: 'Because Ansible cannot inspect arbitrary command side-effects, it
+    defaults to reporting changed: true unless controlled by creates/removes or changed_when.'
+- type: mcq
+  question: How can you make a 'command' or 'shell' task idempotent so it only runs
+    if a target file is missing?
+  options:
+  - Use the 'creates=/path/to/file' parameter
+  - Use the 'removes=/path/to/file' parameter
+  - Pass the '--idempotent' flag on the CLI
+  - Set 'state=present' on the command module
+  correct: Use the 'creates=/path/to/file' parameter
+  explanation: '''creates'' tells Ansible: ''If this file/directory already exists,
+    skip running the command''.'
+- type: mcq
+  question: What is the purpose of the 'removes=/path/to/file' parameter in command
+    and shell modules?
+  options:
+  - The command will only execute if the specified file/directory already exists
+  - Ansible automatically deletes the file before executing the command
+  - Ansible deletes the file if the command returns a non-zero exit code
+  - It removes temporary SSH keys after command completion
+  correct: The command will only execute if the specified file/directory already exists
+  explanation: '''removes'' tells Ansible: ''Only run this command if this file exists
+    (e.g. clean-up scripts)''.'
+- type: mcq
+  question: Which module allows command execution on a remote host that has NO Python
+    installed at all?
+  options:
+  - raw
+  - command
+  - shell
+  - script
+  correct: raw
+  explanation: The 'raw' module issues SSH commands directly without invoking the
+    Ansible Python wrapper subsystem.
+- type: true_false
+  question: The 'shell' module is safer than dedicated declarative modules (like apt,
+    user, or copy) because it uses standard bash commands.
+  correct: false
+  explanation: Shell is potentially dangerous, prone to injection vulnerabilities,
+    and lacks built-in idempotence compared to declarative modules.
+- type: mcq
+  question: What flag enables privilege escalation (sudo/root) in an ad-hoc command?
+  options:
+  - -b (or --become)
+  - -s (or --sudo)
+  - -r (or --root)
+  - -p (or --privilege)
+  correct: -b (or --become)
+  explanation: The `-b` or `--become` flag tells Ansible to execute the task using
+    privilege escalation.
+- type: mcq
+  question: What flag prompts the administrator for the remote sudo/become password
+    when running an ad-hoc command?
+  options:
+  - -K (or --ask-become-pass)
+  - -k (or --ask-pass)
+  - -P (or --password)
+  - -S (or --sudo-pass)
+  correct: -K (or --ask-become-pass)
+  explanation: Uppercase `-K` prompts for the become/sudo password, whereas lowercase
+    `-k` prompts for the SSH connection password.
+- type: true_false
+  question: Ad-hoc commands are best suited for repeatable infrastructure provisioning
+    rather than one-off tasks.
+  correct: false
+  explanation: Ad-hoc commands are meant for quick one-off checks or emergencies;
+    playbooks are used for structured, repeatable provisioning.
+- type: mcq
+  question: In the ad-hoc command 'ansible webservers -m apt -a "name=nginx state=present"
+    -b', what is 'webservers'?
+  options:
+  - The host pattern / inventory group targeting specific servers
+  - The module name being executed
+  - The SSH username connecting to the hosts
+  - The sudo password being passed
+  correct: The host pattern / inventory group targeting specific servers
+  explanation: The first positional parameter after 'ansible' specifies the target
+    host pattern or group.
+- type: mcq
+  question: What happens if a command executed via the 'command' module returns exit
+    code 1?
+  options:
+  - Ansible reports the task as FAILED and halts execution on that host
+  - Ansible ignores the failure and continues silently
+  - Ansible automatically switches to the shell module and retries
+  - The control node restarts the target server
+  correct: Ansible reports the task as FAILED and halts execution on that host
+  explanation: Non-zero exit codes (rc != 0) cause the task to fail by default.
+- type: true_false
+  question: The 'command' module allows you to change the working directory before
+    executing the command using 'chdir=/path'.
+  correct: true
+  explanation: '''chdir'' is a supported parameter for both command and shell modules.'
+- type: mcq
+  question: Which of the following is considered an anti-pattern when writing Ansible
+    playbooks?
+  options:
+  - Using the 'shell' module to run 'apt-get install nginx' instead of the dedicated
+    'apt' module
+  - Using FQCN for module names
+  - 'Running tasks with become: true'
+  - Grouping related servers into inventory groups
+  correct: Using the 'shell' module to run 'apt-get install nginx' instead of the
+    dedicated 'apt' module
+  explanation: Using shell commands when a dedicated, idempotent module (like apt)
+    exists violates Ansible best practices.
+- type: true_false
+  question: Redirecting output with '>' in the command module will work as expected
+    because Linux kernels handle redirection natively.
+  correct: false
+  explanation: Redirection is handled by the shell (/bin/sh or /bin/bash), not the
+    kernel. Since 'command' skips the shell, '>' is ignored or treated as an argument.
+- type: mcq
+  question: What is the recommended approach if a command you run changes state only
+    under specific conditions?
+  options:
+  - Use 'creates' or 'removes' parameters, or handle with 'changed_when' in playbooks
+  - 'Always accept that it reports changed: true'
+  - Run the command twice
+  - Use ping before running the command
+  correct: Use 'creates' or 'removes' parameters, or handle with 'changed_when' in
+    playbooks
+  explanation: '''creates'', ''removes'', and ''changed_when'' give you fine-grained
+    control over idempotency reporting.'
+- type: true_false
+  question: The 'raw' module can be used to install python3-minimal on a newly provisioned
+    Debian system that lacks Python.
+  correct: true
+  explanation: Because 'raw' sends commands directly through the SSH connection, it
+    is the standard tool to bootstrap Python.
+- type: mcq
+  question: Which argument to the command module allows you to specify standard input
+    directly as a string?
+  options:
+  - stdin
+  - input_data
+  - pipe_in
+  - content
+  correct: stdin
+  explanation: The 'stdin' parameter passes string data directly into the command's
+    standard input.
+- type: true_false
+  question: Passing passwords directly inside '-a' arguments in bash history can expose
+    secrets to other local users via the process table.
+  correct: true
+  explanation: Arguments passed on the command line can be viewed via `ps aux` and
+    saved in `~/.bash_history`.

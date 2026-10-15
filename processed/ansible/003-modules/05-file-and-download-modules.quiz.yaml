@@ -1,0 +1,208 @@
+passing_score: 70
+questions:
+- type: mcq
+  question: What is the primary difference between the 'copy' module and the 'file'
+    module?
+  options:
+  - '''copy'' transfers file data and content; ''file'' manages metadata, directories,
+    symlinks, and deletion'
+  - '''copy'' only works on Windows; ''file'' only works on Linux'
+  - '''file'' downloads files from the internet; ''copy'' does not'
+  - They are identical and can be used interchangeably
+  correct: '''copy'' transfers file data and content; ''file'' manages metadata, directories,
+    symlinks, and deletion'
+  explanation: '''copy'' is used to deploy files with content; ''file'' manipulates
+    directory trees, permissions, links, and removals.'
+- type: mcq
+  question: 'Why should octal permissions (like mode: ''0644'') always be wrapped
+    in quotes in YAML?'
+  options:
+  - YAML might interpret bare leading zeros as base-8 integers or decimal numbers,
+    corrupting permissions
+  - Quotes are required by the Linux filesystem kernel
+  - Unquoted numbers cause an SSH disconnection
+  - Permissions cannot exceed 3 digits without quotes
+  correct: YAML might interpret bare leading zeros as base-8 integers or decimal numbers,
+    corrupting permissions
+  explanation: In YAML parsers, unquoted 0644 is interpreted as an octal integer (420
+    in decimal), leading to unexpected file permissions.
+- type: true_false
+  question: 'Setting ''remote_src: yes'' in the copy module instructs Ansible to copy
+    a file from the remote target to the local control machine.'
+  correct: false
+  explanation: '''remote_src: yes'' means both the source and destination are on the
+    remote host (like a remote ''cp'' command).'
+- type: mcq
+  question: Which module allows you to download an archive from the internet directly
+    onto managed nodes with checksum validation?
+  options:
+  - get_url
+  - fetch
+  - copy
+  - uri
+  correct: get_url
+  explanation: '`ansible.builtin.get_url` downloads files via HTTP/HTTPS/FTP and supports
+    checksum validation for idempotency.'
+- type: mcq
+  question: What value of the 'state' parameter in the 'file' module ensures an entire
+    directory and its contents are deleted?
+  options:
+  - absent
+  - deleted
+  - remove
+  - clean
+  correct: absent
+  explanation: '''state: absent'' recursively removes the target file, directory,
+    or symlink.'
+- type: mcq
+  question: Which module and parameter combination is best suited for modifying a
+    single configuration line in /etc/ssh/sshd_config?
+  options:
+  - lineinfile with 'regexp' and 'line'
+  - file with 'state=touch'
+  - get_url with 'force=yes'
+  - raw with 'echo PermitRootLogin no'
+  correct: lineinfile with 'regexp' and 'line'
+  explanation: '`lineinfile` searches for lines matching the regex and replaces them
+    with the desired line string.'
+- type: true_false
+  question: If 'get_url' runs and the destination file already exists and matches
+    the provided 'checksum', it skips the download.
+  correct: true
+  explanation: Checksum verification ensures idempotency by skipping downloads if
+    the file is already present with matching hash.
+- type: mcq
+  question: 'What does the ''backup: yes'' parameter do when used in the copy or lineinfile
+    module?'
+  options:
+  - Creates a timestamped backup copy of the original file before modifying it
+  - Uploads the file to an external S3 bucket
+  - Creates a git repository in the directory
+  - Saves the backup to the control machine's desktop
+  correct: Creates a timestamped backup copy of the original file before modifying
+    it
+  explanation: '''backup: yes'' creates a backup file with a timestamp suffix (e.g.
+    filename.12345.2026-10-15@12:00:00~).'
+- type: mcq
+  question: How do you create a directory using the file module?
+  options:
+  - 'state: directory'
+  - 'type: folder'
+  - 'action: mkdir'
+  - 'state: present'
+  correct: 'state: directory'
+  explanation: 'Setting `state: directory` ensures the directory path exists with
+    specified ownership and mode.'
+- type: true_false
+  question: To create a symbolic link with the file module, 'src' specifies the existing
+    target file and 'dest' specifies the symlink path.
+  correct: true
+  explanation: 'For `state: link`, `src` is the file to point to and `dest` (or `path`)
+    is the symbolic link location.'
+- type: mcq
+  question: Which parameter in the copy module allows you to write raw text directly
+    into a remote file without a local source file?
+  options:
+  - content
+  - text
+  - body
+  - inline
+  correct: content
+  explanation: '`content: ''Hello World''` writes string data directly to the destination
+    file.'
+- type: mcq
+  question: 'What is the behavior of ''state: touch'' in the file module if the target
+    file already exists?'
+  options:
+  - It updates the access and modification times (mtime/atime) without altering content
+  - It overwrites the file and truncates it to 0 bytes
+  - It raises an error that the file exists
+  - It creates a duplicate file with suffix .1
+  correct: It updates the access and modification times (mtime/atime) without altering
+    content
+  explanation: Like the Linux `touch` command, it creates an empty file if missing
+    or updates timestamps if present.
+- type: true_false
+  question: The 'fetch' module works in the opposite direction of 'copy' by retrieving
+    files from remote hosts to the control node.
+  correct: true
+  explanation: '`fetch` copies files from remote targets to the control machine.'
+- type: mcq
+  question: In the lineinfile module, what happens if no line matches the 'regexp'
+    parameter?
+  options:
+  - The specified 'line' is appended to the end of the file by default
+  - The task fails with a regular expression error
+  - Ansible deletes the target file
+  - Nothing happens and the file is unchanged
+  correct: The specified 'line' is appended to the end of the file by default
+  explanation: If no line matches regexp, lineinfile appends the line to the end of
+    the file (unless insertbefore/insertafter specifies otherwise).
+- type: mcq
+  question: Which parameter in the file module applies permission changes recursively
+    to all child directories and files?
+  options:
+  - 'recurse: yes'
+  - 'recursive: true'
+  - 'all: yes'
+  - 'depth: max'
+  correct: 'recurse: yes'
+  explanation: 'The file module uses `recurse: yes` for recursive directory operations.'
+- type: true_false
+  question: If you copy a file using the 'copy' module and the destination file already
+    has identical contents and hash, 'changed' will be false.
+  correct: true
+  explanation: 'The copy module compares MD5/SHA256 checksums; if the remote file
+    matches, it skips transfer and reports changed: false.'
+- type: mcq
+  question: What format is required when providing a checksum to the 'get_url' module?
+  options:
+  - <algorithm>:<hash> (e.g. sha256:abcd123...)
+  - Raw hex string only
+  - URL to checksum file only
+  - MD5 integer
+  correct: <algorithm>:<hash> (e.g. sha256:abcd123...)
+  explanation: The checksum parameter expects `<algorithm>:<checksum_val>` or `<algorithm>:<checksum_url>`.
+- type: true_false
+  question: The copy module automatically creates missing parent directories for the
+    destination path if they do not exist.
+  correct: false
+  explanation: If the parent directory of `dest` does not exist, the copy task will
+    fail. You should create parent directories using the `file` module first.
+- type: mcq
+  question: How can you remove a line from a file using lineinfile?
+  options:
+  - 'Set ''state: absent'' with the matching regexp'
+  - 'Set ''line: ""'''
+  - 'Use line: null'
+  - 'Use action: delete'
+  correct: 'Set ''state: absent'' with the matching regexp'
+  explanation: '`state: absent` combined with `regexp` deletes all matching lines
+    from the target file.'
+- type: mcq
+  question: What module is recommended for multi-line block insertions with start/end
+    marker comments?
+  options:
+  - ansible.builtin.blockinfile
+  - ansible.builtin.lineinfile
+  - ansible.builtin.file
+  - ansible.builtin.append
+  correct: ansible.builtin.blockinfile
+  explanation: '`blockinfile` manages multi-line blocks bounded by marker comments
+    (`# BEGIN ANSIBLE MANAGED BLOCK`).'
+- type: true_false
+  question: Both the copy module and the get_url module can enforce ownership (owner)
+    and group permissions on the target file.
+  correct: true
+  explanation: Both modules accept `owner`, `group`, and `mode` parameters.
+- type: mcq
+  question: When deploying files from Jinja2 templates containing dynamic variables,
+    which module should be used instead of 'copy'?
+  options:
+  - ansible.builtin.template
+  - ansible.builtin.file
+  - ansible.builtin.jinja
+  - ansible.builtin.get_url
+  correct: ansible.builtin.template
+  explanation: The `template` module parses `.j2` templates with Jinja2 variable substitution
+    on the control node before copying.

@@ -1,0 +1,32 @@
+name: Create User
+slug: 007-create-user
+description: 'Master user account administration in Ansible: user lifecycle, secure
+  password hashing (SHA-512), SSH key pair generation, authorized_keys deployment,
+  and production verification.'
+display_order: 7
+chunks:
+- slug: 01-ansible-user-module
+  title: 01. Ansible's User Module Overview
+  file: 01-ansible-user-module.md
+  estimated_time: 7
+  has_hands_on: false
+- slug: 02-create-and-manage-users
+  title: 02. Creating, Modifying, and Removing Users
+  file: 02-create-and-manage-users.md
+  estimated_time: 9
+  has_hands_on: false
+- slug: 03-password-management
+  title: 03. Password Management & Hashing
+  file: 03-password-management.md
+  estimated_time: 8
+  has_hands_on: false
+- slug: 04-ssh-key-setup
+  title: 04. SSH Key Setup & Authorization
+  file: 04-ssh-key-setup.md
+  estimated_time: 8
+  has_hands_on: false
+- slug: 05-troubleshooting-and-best-practices
+  title: 05. Troubleshooting, Verification & Best Practices
+  file: 05-troubleshooting-and-best-practices.md
+  estimated_time: 8
+  has_hands_on: false

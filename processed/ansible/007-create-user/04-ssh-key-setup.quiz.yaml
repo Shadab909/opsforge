@@ -1,0 +1,150 @@
+passing_score: 70
+questions:
+- type: mcq
+  question: Which parameter in the user module instructs Ansible to generate an SSH
+    key pair in the user's home directory?
+  options:
+  - 'generate_ssh_key: yes'
+  - 'ssh_keygen: true'
+  - 'create_keys: yes'
+  - 'enable_ssh: true'
+  correct: 'generate_ssh_key: yes'
+  explanation: '`generate_ssh_key: yes` generates a private/public key pair if missing.'
+- type: mcq
+  question: Which module is used to append or manage public keys in a user's ~/.ssh/authorized_keys
+    file?
+  options:
+  - ansible.posix.authorized_key
+  - ansible.builtin.ssh_auth
+  - ansible.builtin.user
+  - ansible.builtin.keyfile
+  correct: ansible.posix.authorized_key
+  explanation: '`ansible.posix.authorized_key` manages lines in `~/.ssh/authorized_keys`.'
+- type: true_false
+  question: 'If an SSH key already exists in ~/.ssh/id_rsa, setting ''generate_ssh_key:
+    yes'' will overwrite it and generate a new key.'
+  correct: false
+  explanation: '`generate_ssh_key: yes` is idempotent; it leaves existing keys untouched.'
+- type: mcq
+  question: 'What does the ''exclusive: yes'' parameter do in the authorized_key module?'
+  options:
+  - Removes any keys in authorized_keys that are not explicitly specified in the task
+  - Locks the file so only root can read it
+  - Allows only one SSH connection at a time
+  - Generates a one-time single-use key
+  correct: Removes any keys in authorized_keys that are not explicitly specified in
+    the task
+  explanation: '`exclusive: yes` purges unauthorized or stray keys, enforcing a strict
+    whitelist.'
+- type: mcq
+  question: What filesystem permissions does Ansible enforce on the ~/.ssh directory
+    and authorized_keys file by default?
+  options:
+  - 0700 for ~/.ssh and 0600 for authorized_keys
+  - 0777 for ~/.ssh and 0777 for authorized_keys
+  - 0755 for ~/.ssh and 0644 for authorized_keys
+  - 0700 for ~/.ssh and 0644 for authorized_keys
+  correct: 0700 for ~/.ssh and 0600 for authorized_keys
+  explanation: 'OpenSSH requires strict permissions: 0700 for `.ssh` and 0600 for
+    `authorized_keys`.'
+- type: true_false
+  question: The authorized_key module can fetch public keys directly from GitHub by
+    supplying a URL (e.g. https://github.com/username.keys).
+  correct: true
+  explanation: Ansible will download public keys from HTTP/HTTPS URLs directly.
+- type: mcq
+  question: Which modern key type is widely recommended over legacy 2048-bit RSA for
+    SSH keys?
+  options:
+  - ed25519
+  - dsa
+  - des
+  - rc4
+  correct: ed25519
+  explanation: Ed25519 provides superior security, performance, and compact key lengths.
+- type: mcq
+  question: How can you read a local public key file from the control node and supply
+    it to the authorized_key task?
+  options:
+  - 'key: "{{ lookup(''file'', ''~/.ssh/id_rsa.pub'') }}"'
+  - 'key_file: ''~/.ssh/id_rsa.pub'''
+  - 'src: ''~/.ssh/id_rsa.pub'''
+  - 'read_local: ''~/.ssh/id_rsa.pub'''
+  correct: 'key: "{{ lookup(''file'', ''~/.ssh/id_rsa.pub'') }}"'
+  explanation: The `lookup('file', ...)` plugin reads contents from the control node's
+    filesystem.
+- type: true_false
+  question: 'If you set ''state: absent'' in the authorized_key module, it will remove
+    the specified key from the authorized_keys file.'
+  correct: true
+  explanation: '`state: absent` revokes specific keys cleanly.'
+- type: mcq
+  question: What parameter specifies the bit length when generating RSA keys in the
+    user module?
+  options:
+  - ssh_key_bits
+  - bits
+  - key_size
+  - length
+  correct: ssh_key_bits
+  explanation: '`ssh_key_bits` (e.g. 4096) sets the key size for RSA.'
+- type: true_false
+  question: The authorized_key module can accept multiple public keys separated by
+    newlines in a single task.
+  correct: true
+  explanation: The `key` parameter can contain multiple newline-separated keys.
+- type: mcq
+  question: What parameter in the user module customizes the comment placed at the
+    end of the generated public key?
+  options:
+  - ssh_key_comment
+  - comment
+  - key_label
+  - tag
+  correct: ssh_key_comment
+  explanation: '`ssh_key_comment` sets the trailing comment (e.g. user@host).'
+- type: true_false
+  question: 'Using ''exclusive: yes'' with an empty key list will wipe all keys from
+    the user''s authorized_keys file.'
+  correct: true
+  explanation: '`exclusive: yes` removes any key not present in `key`.'
+- type: mcq
+  question: What return value key from the user module contains the generated SSH
+    public key string?
+  options:
+  - ssh_public_key
+  - public_key
+  - pub_key
+  - ssh_key
+  correct: ssh_public_key
+  explanation: '`result.ssh_public_key` contains the generated public key text.'
+- type: true_false
+  question: 'SSH keys generated with ''generate_ssh_key: yes'' are protected by a
+    passphrase by default.'
+  correct: false
+  explanation: Generated keys have no passphrase so automated tasks can use them non-interactively.
+- type: mcq
+  question: What parameter in authorized_key specifies the path to a non-standard
+    authorized_keys file?
+  options:
+  - path
+  - dest
+  - file
+  - key_path
+  correct: path
+  explanation: '`path` overrides the default `~/.ssh/authorized_keys` destination.'
+- type: true_false
+  question: The authorized_key module can manage keys for users whose home directory
+    does not exist.
+  correct: false
+  explanation: Ansible must write to `<home>/.ssh/authorized_keys`, so the home directory
+    must exist.
+- type: mcq
+  question: Which collection contains the 'authorized_key' module?
+  options:
+  - ansible.posix
+  - ansible.builtin
+  - community.general
+  - ansible.security
+  correct: ansible.posix
+  explanation: In modern Ansible collections, `authorized_key` lives under `ansible.posix.authorized_key`.

@@ -1,0 +1,152 @@
+passing_score: 70
+questions:
+- type: mcq
+  question: 'Why should verification tasks (like ''id <username>'') always include
+    ''changed_when: false''?'
+  options:
+  - To prevent read-only inspection commands from falsely reporting system state changes
+  - Because changed tasks are killed by the Linux kernel
+  - To force the command to run with root privileges
+  - To suppress error messages
+  correct: To prevent read-only inspection commands from falsely reporting system
+    state changes
+  explanation: 'Read-only inspection commands do not modify state; setting `changed_when:
+    false` maintains accurate reporting.'
+- type: mcq
+  question: 'What error occurs if you create a user with ''group: custom_group'' before
+    that group exists on the remote system?'
+  options:
+  - useradd fails with 'group custom_group does not exist'
+  - Ansible automatically creates the group with GID 999
+  - The user is assigned to group 'nogroup'
+  - The task succeeds silently
+  correct: useradd fails with 'group custom_group does not exist'
+  explanation: Primary groups must exist on the system prior to user creation.
+- type: true_false
+  question: OpenSSH will reject authentication if ~/.ssh has 0777 (world-writable)
+    permissions.
+  correct: true
+  explanation: OpenSSH's StrictModes will deliberately reject authentication if directories
+    are world-writable.
+- type: mcq
+  question: Which Linux command displays a user's UID, GID, and all secondary group
+    memberships?
+  options:
+  - id
+  - whoami
+  - uname
+  - groups_only
+  correct: id
+  explanation: '`id <username>` prints uid, gid, and groups.'
+- type: mcq
+  question: What is the best practice for managing passwords of human developers who
+    rotate their own passwords?
+  options:
+  - 'Use ''update_password: on_create'''
+  - 'Use ''update_password: always'''
+  - Store passwords in plain text in README.md
+  - Disable passwords completely
+  correct: 'Use ''update_password: on_create'''
+  explanation: '`on_create` sets the initial password on user creation and never overwrites
+    it when the user changes it.'
+- type: true_false
+  question: Ansible Vault encrypted files require a password or key file at runtime
+    via '--ask-vault-pass' or '--vault-password-file'.
+  correct: true
+  explanation: Vaulted variables require decryption keys when playbooks run.
+- type: mcq
+  question: What parameter in the user module ensures that user creation fails if
+    the specified UID is already taken by another account?
+  options:
+  - 'non_unique: no (default)'
+  - 'unique: yes'
+  - 'force_unique: true'
+  - 'check_uid: true'
+  correct: 'non_unique: no (default)'
+  explanation: 'By default, `non_unique: no` prevents duplicate UIDs.'
+- type: true_false
+  question: 'System users (system: yes) typically do not require an active login shell
+    and should have shell: /sbin/nologin.'
+  correct: true
+  explanation: Restricting shell login on daemon accounts minimizes the attack surface.
+- type: mcq
+  question: How do you completely remove a departing employee's account and all their
+    files from the disk?
+  options:
+  - 'state: absent with remove: yes'
+  - 'state: deleted with force: true'
+  - 'state: purge'
+  - 'remove: true with state: present'
+  correct: 'state: absent with remove: yes'
+  explanation: '`state: absent` with `remove: yes` deletes both the account and its
+    home directory.'
+- type: true_false
+  question: The 'group' module should generally be placed before the 'user' module
+    in playbooks when creating custom primary groups.
+  correct: true
+  explanation: Ensuring the group exists before assigning users to it prevents dependency
+    errors.
+- type: mcq
+  question: 'What is the result of ''failed_when: user_info.rc != 0'' on a verification
+    task?'
+  options:
+  - The task only fails if the command exit code is non-zero
+  - The task will always fail
+  - The task will ignore errors
+  - The task will retry 5 times
+  correct: The task only fails if the command exit code is non-zero
+  explanation: '`failed_when` customizes the failure criteria based on return attributes.'
+- type: true_false
+  question: 'A user account locked with ''password_lock: yes'' can still be accessed
+    via ''su -'' by the root user.'
+  correct: true
+  explanation: Root can always switch to any local user via `su -` regardless of password
+    locks.
+- type: mcq
+  question: Which file in Linux lists the secondary group memberships of all users?
+  options:
+  - /etc/group
+  - /etc/passwd
+  - /etc/sudoers
+  - /etc/subgid
+  correct: /etc/group
+  explanation: Group definitions and memberships are stored in `/etc/group`.
+- type: true_false
+  question: Hardcoding production root passwords directly into Git is acceptable if
+    the Git repository is private.
+  correct: false
+  explanation: Secrets should never be stored in plain text, even in private repositories.
+    Use Ansible Vault.
+- type: mcq
+  question: 'What happens if a user is deleted with ''state: absent'' and ''remove:
+    no'' and a new user is later assigned the same UID?'
+  options:
+  - The new user inherits ownership of the orphan files in the old home directory
+  - The Linux kernel crashes
+  - The files are securely shredded
+  - The filesystem locks into read-only mode
+  correct: The new user inherits ownership of the orphan files in the old home directory
+  explanation: Filesystem permissions are tracked by UID, so reassigning a UID grants
+    access to leftover files.
+- type: true_false
+  question: The debug module can be used to print registered user inspection data
+    during playbook runs.
+  correct: true
+  explanation: '`ansible.builtin.debug` prints variables and registered output.'
+- type: mcq
+  question: Which parameter ensures the user's primary group is created automatically
+    with the same name as the user on systems that support it?
+  options:
+  - 'user_group: yes'
+  - 'auto_group: true'
+  - 'create_group: yes'
+  - 'same_group: true'
+  correct: 'user_group: yes'
+  explanation: '`user_group: yes` creates a group matching the username as the primary
+    group.'
+- type: true_false
+  question: Properly written Ansible user management tasks are completely safe to
+    re-run on every routine maintenance window.
+  correct: true
+  explanation: Because tasks are declarative and idempotent, running them repeatedly
+    enforces compliance without side effects.

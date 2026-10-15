@@ -1,0 +1,36 @@
+name: Commands & Modules
+slug: 003-modules
+description: 'Master Ansible modules: core execution mechanics, ping internals, ansible-doc,
+  command vs shell vs raw, and essential file & system modules.'
+display_order: 3
+chunks:
+- slug: 01-what-is-a-module
+  title: 01. What is a Module?
+  file: 01-what-is-a-module.md
+  estimated_time: 8
+  has_hands_on: false
+- slug: 02-the-ping-module
+  title: 02. The Ping Module & Source Code
+  file: 02-the-ping-module.md
+  estimated_time: 7
+  has_hands_on: false
+- slug: 03-discovering-and-documenting-modules
+  title: 03. Discovering and Documenting Modules
+  file: 03-discovering-and-documenting-modules.md
+  estimated_time: 8
+  has_hands_on: false
+- slug: 04-ad-hoc-commands-and-command-vs-shell
+  title: '04. Ad-Hoc Commands: Module vs Command vs Shell'
+  file: 04-ad-hoc-commands-and-command-vs-shell.md
+  estimated_time: 9
+  has_hands_on: false
+- slug: 05-file-and-download-modules
+  title: 05. File Management & Download Modules
+  file: 05-file-and-download-modules.md
+  estimated_time: 9
+  has_hands_on: false
+- slug: 06-system-and-service-modules
+  title: 06. System, Package, and Service Modules
+  file: 06-system-and-service-modules.md
+  estimated_time: 9
+  has_hands_on: false

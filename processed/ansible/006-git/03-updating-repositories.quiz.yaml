@@ -1,0 +1,147 @@
+passing_score: 70
+questions:
+- type: mcq
+  question: What is the default value of the 'update' parameter in the git module?
+  options:
+  - true (or yes)
+  - false (or no)
+  - force
+  - check
+  correct: true (or yes)
+  explanation: '`update` defaults to `true`, ensuring Ansible pulls upstream changes
+    whenever the task runs.'
+- type: mcq
+  question: 'What error occurs if uncommitted local edits exist on the remote host
+    and ''update: yes'' runs with default settings?'
+  options:
+  - Git refuses to merge and Ansible fails with a 'Local changes would be overwritten'
+    error
+  - Ansible automatically commits the local changes to a new branch
+  - Ansible deletes the remote repository and reclones
+  - The task succeeds and ignores upstream changes
+  correct: Git refuses to merge and Ansible fails with a 'Local changes would be overwritten'
+    error
+  explanation: 'Git protects uncommitted changes from being silently clobbered unless
+    force: yes is provided.'
+- type: mcq
+  question: Which parameter instructs the git module to discard local modifications
+    and force a clean checkout?
+  options:
+  - 'force: yes'
+  - 'clean: true'
+  - 'overwrite: yes'
+  - 'reset: hard'
+  correct: 'force: yes'
+  explanation: '`force: yes` discards local modifications (running git reset --hard)
+    to align with upstream.'
+- type: true_false
+  question: 'Setting ''force: yes'' will recover files that were deleted locally on
+    the managed node.'
+  correct: true
+  explanation: 'Because `force: yes` resets to the target commit, missing tracked
+    files are restored from the repository.'
+- type: mcq
+  question: How can you configure a service restart to execute ONLY when a new commit
+    is pulled by the git task?
+  options:
+  - Use the 'notify' directive on the git task pointing to a handler
+  - 'Add ''restart_service: yes'' to the git module'
+  - Always restart the service at the end of the playbook
+  - Run systemctl restart in the same git task
+  correct: Use the 'notify' directive on the git task pointing to a handler
+  explanation: 'Handlers only trigger when the notifying task reports `changed: true`.'
+- type: true_false
+  question: 'If you set ''update: false'' on an existing repository, Ansible will
+    check the remote origin for new commits.'
+  correct: false
+  explanation: '`update: false` skips checking remote origin entirely if the destination
+    folder exists.'
+- type: mcq
+  question: In the registered result of a git task, how can a conditional test if
+    the code was actually updated?
+  options:
+  - 'when: git_result.changed'
+  - 'when: git_result.status == ''updated'''
+  - 'when: git_result.before == git_result.after'
+  - 'when: git_result.pulled == true'
+  correct: 'when: git_result.changed'
+  explanation: In Ansible, `result.changed` evaluates to `true` whenever modifications
+    occurred.
+- type: mcq
+  question: 'What Git command is roughly equivalent to what the git module does when
+    ''update: yes'' and ''force: yes'' are set?'
+  options:
+  - git fetch && git reset --hard origin/<version>
+  - git commit -am 'auto' && git push
+  - git rebase --interactive
+  - git stash pop
+  correct: git fetch && git reset --hard origin/<version>
+  explanation: It fetches remote references and hard-resets the working directory
+    to match the target commit.
+- type: true_false
+  question: '''force: yes'' will also remove untracked files in the working directory
+    that are not ignored by .gitignore.'
+  correct: false
+  explanation: By default, reset --hard only alters tracked files; removing untracked
+    files requires git clean.
+- type: mcq
+  question: What return value comparison proves that no new commits were pulled during
+    task execution?
+  options:
+  - git_result.before == git_result.after
+  - git_result.changed == true
+  - git_result.rc == 1
+  - git_result.after is null
+  correct: git_result.before == git_result.after
+  explanation: If `before` and `after` commit hashes are identical, no updates occurred.
+- type: true_false
+  question: 'If upstream Git has force-pushed a rewritten commit history, ''update:
+    yes'' without ''force: yes'' will fail fast-forward.'
+  correct: true
+  explanation: 'Standard git pulls require fast-forward merges; non-fast-forward histories
+    fail unless `force: yes` is enabled.'
+- type: mcq
+  question: Which parameter controls whether the working tree files are actually updated
+    to match the commit?
+  options:
+  - force
+  - verify_commit
+  - bare
+  - separate_git_dir
+  correct: force
+  explanation: '`force` controls overriding working tree state.'
+- type: true_false
+  question: 'A task with ''update: yes'' will fail if the remote target node has lost
+    internet or network connectivity to the Git server.'
+  correct: true
+  explanation: Because it attempts a remote network fetch, network failure will cause
+    the git module to return a fatal error.
+- type: mcq
+  question: What parameter is used to specify a custom remote name other than the
+    default 'origin'?
+  options:
+  - remote
+  - origin_name
+  - upstream
+  - remote_name
+  correct: remote
+  explanation: 'The `remote` parameter defines the remote repository name (default:
+    `origin`).'
+- type: true_false
+  question: Handlers notified by a git task run immediately before the next task in
+    the playbook starts.
+  correct: false
+  explanation: 'By default in Ansible, handlers run at the end of the play (or when
+    flushed via meta: flush_handlers).'
+- type: mcq
+  question: 'Why is ''force: yes'' considered risky on development servers?'
+  options:
+  - It will overwrite and permanently destroy any uncommitted developer edits on that
+    host
+  - It causes Git to delete the remote repository on GitHub
+  - It revokes SSH keys across the cluster
+  - It requires a system reboot
+  correct: It will overwrite and permanently destroy any uncommitted developer edits
+    on that host
+  explanation: Any temporary fixes or test edits made directly on the server will
+    be lost without recovery.

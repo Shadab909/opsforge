@@ -1,0 +1,138 @@
+passing_score: 70
+questions:
+- type: mcq
+  question: On which machine must the 'git' command-line binary be installed for the
+    ansible.builtin.git module to function?
+  options:
+  - On the remote managed host where the repository is cloned
+  - Only on the Ansible control node
+  - Only on the central GitHub/GitLab server
+  - In the local Python site-packages directory
+  correct: On the remote managed host where the repository is cloned
+  explanation: The git module delegates execution to the remote node's local git client
+    over SSH.
+- type: mcq
+  question: What are the two mandatory parameters required for any ansible.builtin.git
+    task?
+  options:
+  - repo and dest
+  - repo and version
+  - dest and key_file
+  - url and branch
+  correct: repo and dest
+  explanation: '`repo` (the source repository URL) and `dest` (the target directory)
+    are the only required arguments.'
+- type: true_false
+  question: The git module will automatically install the git package on the target
+    node if it is missing.
+  correct: false
+  explanation: Ansible will fail with an executable not found error. You must install
+    git first (e.g. using the apt or dnf module).
+- type: mcq
+  question: What is the default value of the 'version' parameter if omitted?
+  options:
+  - HEAD
+  - main
+  - master
+  - latest
+  correct: HEAD
+  explanation: If version is omitted, Ansible defaults to `HEAD` (the default branch
+    of the remote repository).
+- type: mcq
+  question: What return key provides the Git commit hash of the repository BEFORE
+    the task executed?
+  options:
+  - before
+  - previous_commit
+  - old_sha
+  - initial_head
+  correct: before
+  explanation: The module returns `before` (old commit SHA) and `after` (new commit
+    SHA).
+- type: true_false
+  question: 'If a repository is already at the target commit on the remote server,
+    the git module reports ''changed: false''.'
+  correct: true
+  explanation: The git module is idempotent; if the local HEAD already matches the
+    requested version, no changes are made.
+- type: mcq
+  question: What FQCN refers to the built-in Git module in modern Ansible?
+  options:
+  - ansible.builtin.git
+  - community.general.git
+  - ansible.posix.git
+  - vcs.git.clone
+  correct: ansible.builtin.git
+  explanation: The git module is bundled directly in core under `ansible.builtin.git`.
+- type: mcq
+  question: What type of path is expected for the 'dest' parameter?
+  options:
+  - An absolute filesystem path on the remote host
+  - A relative path from the control node's current directory
+  - A URL pointing to a storage bucket
+  - An inventory hostname
+  correct: An absolute filesystem path on the remote host
+  explanation: Best practice and standard convention requires an absolute path (e.g.
+    /var/www/app) on the target host.
+- type: true_false
+  question: The git module can clone repositories using both HTTPS and SSH protocols.
+  correct: true
+  explanation: Both HTTPS URLs (https://github.com/...) and SSH URLs (git@github.com:...)
+    are fully supported.
+- type: mcq
+  question: What return value indicates the Git commit hash AFTER the task successfully
+    completes?
+  options:
+  - after
+  - current_head
+  - new_commit
+  - target_sha
+  correct: after
+  explanation: '`after` contains the resulting 40-character SHA-1 commit hash.'
+- type: mcq
+  question: What happens if the 'dest' directory does not exist on the remote host
+    prior to cloning?
+  options:
+  - Ansible automatically creates the parent directories and clones the repo
+  - The task fails because the folder must be manually created first
+  - Ansible clones the repo into /tmp instead
+  - Ansible prompts the user for directory creation
+  correct: Ansible automatically creates the parent directories and clones the repo
+  explanation: Git creates the target directory during the clone operation.
+- type: true_false
+  question: By default, the git module automatically clones submodules recursively.
+  correct: true
+  explanation: '`recursive` defaults to `true`, cloning any registered submodules.'
+- type: mcq
+  question: Which parameter controls whether new commits should be fetched from origin
+    if the repo already exists on the remote node?
+  options:
+  - update
+  - pull
+  - fetch
+  - sync
+  correct: update
+  explanation: '`update: true` (default) checks for and pulls updates; `update: false`
+    leaves existing clones untouched.'
+- type: true_false
+  question: If git on the remote host exits with a fatal error (such as repository
+    not found), Ansible marks the task as failed.
+  correct: true
+  explanation: Any non-zero exit code from git CLI commands triggers task failure.
+- type: mcq
+  question: Which parameter creates a shallow clone by fetching only the most recent
+    N commits?
+  options:
+  - depth
+  - shallow
+  - truncate
+  - history_limit
+  correct: depth
+  explanation: '`depth: 1` creates a shallow clone containing only the tip commit,
+    saving bandwidth and disk.'
+- type: true_false
+  question: The git module can be used to commit and push changes from the remote
+    server back to GitHub.
+  correct: false
+  explanation: The git module is designed for deployment and checkout (pull/clone);
+    it does not commit or push changes.

@@ -1,0 +1,37 @@
+name: Git Integration
+slug: 006-git
+description: 'Master Git integration with Ansible: repository cloning, continuous
+  updates, branch & tag pinning, SSH deploy key authentication, and atomic zero-downtime
+  deployment patterns.'
+display_order: 6
+chunks:
+- slug: 01-git-module-basics
+  title: 01. Git Module Basics
+  file: 01-git-module-basics.md
+  estimated_time: 7
+  has_hands_on: false
+- slug: 02-cloning-repositories
+  title: 02. Cloning Repositories
+  file: 02-cloning-repositories.md
+  estimated_time: 7
+  has_hands_on: false
+- slug: 03-updating-repositories
+  title: 03. Updating Repositories
+  file: 03-updating-repositories.md
+  estimated_time: 7
+  has_hands_on: false
+- slug: 04-branches-and-tags
+  title: 04. Branches and Tags
+  file: 04-branches-and-tags.md
+  estimated_time: 8
+  has_hands_on: false
+- slug: 05-authentication-and-ssh
+  title: 05. Authentication and SSH
+  file: 05-authentication-and-ssh.md
+  estimated_time: 9
+  has_hands_on: false
+- slug: 06-patterns-and-best-practices
+  title: 06. Common Patterns and Best Practices
+  file: 06-patterns-and-best-practices.md
+  estimated_time: 8
+  has_hands_on: false

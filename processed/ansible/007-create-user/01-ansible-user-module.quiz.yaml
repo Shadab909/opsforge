@@ -1,0 +1,138 @@
+passing_score: 70
+questions:
+- type: mcq
+  question: What is the primary role of the ansible.builtin.user module?
+  options:
+  - Managing operating system user accounts, shells, groups, and home directories
+    declaratively
+  - Managing database user accounts in MySQL and PostgreSQL
+  - Creating IAM users on AWS cloud infrastructure
+  - Managing user sessions in web browsers
+  correct: Managing operating system user accounts, shells, groups, and home directories
+    declaratively
+  explanation: The user module manages OS-level accounts across Unix/Linux systems.
+- type: mcq
+  question: 'Why is ''become: yes'' required when running tasks with the user module?'
+  options:
+  - Modifying /etc/passwd, /etc/shadow, and /etc/group requires root/administrator
+    privileges
+  - 'Ansible cannot parse YAML without become: yes'
+  - The user module is written in C and needs kernel access
+  - To bypass SSH key verification
+  correct: Modifying /etc/passwd, /etc/shadow, and /etc/group requires root/administrator
+    privileges
+  explanation: Creating or modifying system user accounts is a restricted administrative
+    operation.
+- type: true_false
+  question: The user module automatically uses the appropriate OS commands (like useradd
+    on Linux or pw on FreeBSD) behind the scenes.
+  correct: true
+  explanation: Ansible abstracts OS commands so the same playbook task works on multiple
+    Linux and BSD distributions.
+- type: mcq
+  question: What is the default value of the 'state' parameter in the user module?
+  options:
+  - present
+  - absent
+  - create
+  - active
+  correct: present
+  explanation: '`state` defaults to `present` (ensuring the user account exists).'
+- type: mcq
+  question: If a user already exists with the requested shell, UID, and groups, what
+    will Ansible report?
+  options:
+  - 'ok (changed: false)'
+  - 'changed (changed: true)'
+  - failed
+  - skipped
+  correct: 'ok (changed: false)'
+  explanation: The task is idempotent; if the user state matches declarations, no
+    changes are made.
+- type: true_false
+  question: The user module can manage user passwords directly in plaintext safely
+    without any hashing.
+  correct: false
+  explanation: Linux /etc/shadow requires cryptographically salted password hashes.
+    Cleartext passwords fail or pose severe security risks.
+- type: mcq
+  question: Which FQCN refers to the built-in user management module?
+  options:
+  - ansible.builtin.user
+  - community.general.user
+  - ansible.posix.user
+  - core.system.user
+  correct: ansible.builtin.user
+  explanation: 'The user module is part of the core built-in collection: `ansible.builtin.user`.'
+- type: mcq
+  question: What return key provides the assigned numeric User ID of the managed user?
+  options:
+  - uid
+  - user_number
+  - id
+  - numeric_id
+  correct: uid
+  explanation: The returned dictionary includes `uid`.
+- type: true_false
+  question: A single task with the user module can create both the user account and
+    automatically generate an SSH key pair.
+  correct: true
+  explanation: 'The user module supports `generate_ssh_key: true` to generate SSH
+    keys during creation.'
+- type: mcq
+  question: Which underlying system file stores user metadata (username, UID, GID,
+    home, shell) on Linux?
+  options:
+  - /etc/passwd
+  - /etc/shadow
+  - /etc/hosts
+  - /etc/environment
+  correct: /etc/passwd
+  explanation: User metadata is stored in `/etc/passwd`; encrypted password hashes
+    are stored in `/etc/shadow`.
+- type: mcq
+  question: What is the only required parameter for the user module?
+  options:
+  - name
+  - uid
+  - shell
+  - password
+  correct: name
+  explanation: '`name` (the username) is the only mandatory argument.'
+- type: true_false
+  question: If the user does not exist on the system and state is set to 'absent',
+    the task will fail.
+  correct: false
+  explanation: 'Setting `state: absent` when the user is already missing reports `ok
+    (changed: false)` idempotently.'
+- type: mcq
+  question: What return key indicates the home directory path of the created/modified
+    user?
+  options:
+  - home
+  - home_dir
+  - path
+  - user_dir
+  correct: home
+  explanation: '`home` contains the user''s home directory path.'
+- type: true_false
+  question: Running the user module in check mode ('--check') allows previewing if
+    a user would be created or modified.
+  correct: true
+  explanation: The user module supports check mode.
+- type: mcq
+  question: 'Which operating system user account is normally used to execute Ansible
+    tasks when ''become: yes'' is set without ''become_user''?'
+  options:
+  - root
+  - admin
+  - wheel
+  - ansible
+  correct: root
+  explanation: By default, privilege escalation assumes the `root` account.
+- type: true_false
+  question: The user module can only manage human login users and cannot create system
+    daemon service accounts.
+  correct: false
+  explanation: 'Using `system: yes` and `shell: /sbin/nologin`, you can create system
+    service accounts.'

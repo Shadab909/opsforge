@@ -1,0 +1,150 @@
+passing_score: 70
+questions:
+- type: mcq
+  question: What happens if the 'dest' directory on the remote host exists, is not
+    empty, and does NOT contain a .git directory?
+  options:
+  - The task fails because Git refuses to clone into a non-empty non-git directory
+  - Ansible deletes all existing files without warning and clones the repo
+  - Ansible creates a subfolder named repo_clone inside it
+  - Ansible automatically converts the directory into a bare git repository
+  correct: The task fails because Git refuses to clone into a non-empty non-git directory
+  explanation: Standard Git safety prevents overwriting existing directories containing
+    foreign files.
+- type: mcq
+  question: How do you configure the git task to clone a repository only once and
+    never fetch new commits on subsequent runs?
+  options:
+  - 'update: false'
+  - 'clone_only: true'
+  - 'pull: never'
+  - 'once: true'
+  correct: 'update: false'
+  explanation: '`update: false` tells Ansible: ''If the directory exists, leave it
+    as is without checking remote origin''.'
+- type: true_false
+  question: 'If the destination folder already contains a valid git clone at the desired
+    commit, re-running the task reports changed: false.'
+  correct: true
+  explanation: Ansible detects that HEAD already matches the requested state and performs
+    no action (idempotent).
+- type: mcq
+  question: Which parameter creates a repository without a working directory (used
+    for Git server mirrors)?
+  options:
+  - 'bare: yes'
+  - 'no_worktree: true'
+  - 'mirror_only: yes'
+  - 'metadata: true'
+  correct: 'bare: yes'
+  explanation: '`bare: yes` creates a bare repository containing only objects and
+    references.'
+- type: mcq
+  question: What is the recommended practice for enforcing web server ownership (www-data)
+    on a cloned repository?
+  options:
+  - 'Follow the git task with an ansible.builtin.file task with recurse: yes and owner/group
+    set'
+  - Pass owner=www-data directly to the git module
+  - Edit the .git/config file manually
+  - Run chown with the raw module
+  correct: 'Follow the git task with an ansible.builtin.file task with recurse: yes
+    and owner/group set'
+  explanation: 'The file module with `recurse: yes` ensures all cloned files and subdirectories
+    have the correct ownership.'
+- type: true_false
+  question: Ansible git clone operations require root / become permissions even if
+    cloning into the connecting user's home directory.
+  correct: false
+  explanation: Privilege escalation is only needed if writing to system-protected
+    paths like `/var/www/` or `/opt/`.
+- type: mcq
+  question: What return value in the git task result shows whether a fresh clone occurred
+    or an existing repo was updated?
+  options:
+  - result.before is null on fresh clones, and contains a SHA on existing repositories
+  - result.fresh_clone is true
+  - result.is_new_repo is true
+  - result.status == 'cloned'
+  correct: result.before is null on fresh clones, and contains a SHA on existing repositories
+  explanation: On a newly cloned repository, `before` is `null` because no prior commit
+    existed locally.
+- type: true_false
+  question: 'You can clone a local repository on the remote machine by passing a filesystem
+    path to the ''repo'' parameter (e.g. repo: /git/myrepo).'
+  correct: true
+  explanation: Git supports local file paths as repositories (file:// or raw filesystem
+    paths).
+- type: mcq
+  question: Which parameter specifies whether to clone submodules when cloning a repository?
+  options:
+  - recursive
+  - submodules
+  - clone_children
+  - all_modules
+  correct: recursive
+  explanation: '`recursive: yes` (the default) clones any nested submodules.'
+- type: mcq
+  question: 'What happens if ''clone: no'' is specified when the destination directory
+    does not exist?'
+  options:
+  - The task fails because it cannot operate on a non-existent destination without
+    cloning
+  - Ansible creates an empty directory
+  - Ansible downloads a zip archive instead
+  - Ansible prints a warning and skips
+  correct: The task fails because it cannot operate on a non-existent destination
+    without cloning
+  explanation: '`clone: no` expects an existing repository to already be present at
+    `dest`.'
+- type: true_false
+  question: Cloning via HTTPS from a public repository requires configuring SSH deploy
+    keys on target servers.
+  correct: false
+  explanation: Public HTTPS repositories require zero credentials or SSH keys to clone.
+- type: mcq
+  question: What parameter allows you to pass custom git command-line options during
+    clone operations?
+  options:
+  - archive_opts / clone_opts
+  - extra_flags
+  - cli_args
+  - git_custom
+  correct: archive_opts / clone_opts
+  explanation: '`clone_opts` (or module flags) allows passing extra arguments directly
+    to `git clone`.'
+- type: true_false
+  question: If you change the 'repo' parameter to a completely different repository
+    URL on an existing 'dest', Ansible automatically replaces the repo without error.
+  correct: false
+  explanation: If the destination is already a git repo pointing to a different origin,
+    Ansible will raise an error unless forced.
+- type: mcq
+  question: How can you ensure destination parent directories exist with specific
+    permissions before cloning?
+  options:
+  - 'Use ansible.builtin.file with state: directory prior to the git clone task'
+  - Pass create_parents=yes to the git module
+  - Set auto_mkdir=true
+  - Run mkdir -p in a shell task
+  correct: 'Use ansible.builtin.file with state: directory prior to the git clone
+    task'
+  explanation: 'Creating parent folders declaratively with `file: state=directory`
+    ensures permissions and ownership are set properly.'
+- type: mcq
+  question: 'What is the result of ''git: repo=... dest=/opt/app'' if /opt/app exists
+    as an empty directory?'
+  options:
+  - Ansible successfully clones the repository into /opt/app
+  - Ansible deletes /opt/app
+  - Ansible skips the task
+  - Ansible reports FAILED
+  correct: Ansible successfully clones the repository into /opt/app
+  explanation: Git allows cloning into pre-existing directories as long as they are
+    completely empty.
+- type: true_false
+  question: 'Cloning large repositories without ''depth: 1'' fetches the entire commit
+    history, which can consume unnecessary disk space and time.'
+  correct: true
+  explanation: 'Full clones download every revision and historical blob; shallow clones
+    (`depth: 1`) are much faster for deployments.'

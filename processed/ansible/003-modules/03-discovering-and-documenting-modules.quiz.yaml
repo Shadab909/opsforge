@@ -1,0 +1,157 @@
+passing_score: 70
+questions:
+- type: mcq
+  question: What does FQCN stand for in modern Ansible architecture?
+  options:
+  - Fully Qualified Collection Name
+  - Fast Query Configuration Node
+  - File Queue Control Network
+  - Format Query Command Notification
+  correct: Fully Qualified Collection Name
+  explanation: FQCN stands for Fully Qualified Collection Name, structured as <namespace>.<collection>.<module>.
+- type: mcq
+  question: Which command lists all installed modules available on the Ansible control
+    node?
+  options:
+  - ansible-doc -l
+  - ansible-list-modules
+  - ansible all --show-modules
+  - ansible-galaxy list --all
+  correct: ansible-doc -l
+  explanation: '''ansible-doc -l'' (or --list) lists all available plugins/modules.'
+- type: mcq
+  question: Which flag with 'ansible-doc' outputs a concise, copy-pasteable YAML task
+    snippet?
+  options:
+  - -s (or --snippet)
+  - -y (or --yaml)
+  - -c (or --code)
+  - -t (or --template)
+  correct: -s (or --snippet)
+  explanation: '''ansible-doc -s <module>'' outputs a formatted YAML skeleton of parameters.'
+- type: true_false
+  question: Starting with Ansible 2.10, modules were separated from the core engine
+    into modular Collections.
+  correct: true
+  explanation: The collection split allowed modules to be versioned, released, and
+    maintained independently of ansible-core.
+- type: mcq
+  question: What collection contains the core modules bundled directly with ansible-core?
+  options:
+  - ansible.builtin
+  - community.general
+  - ansible.legacy
+  - core.modules
+  correct: ansible.builtin
+  explanation: All fundamental modules like copy, file, ping, command, and service
+    belong to 'ansible.builtin'.
+- type: mcq
+  question: If you want to install packages across mixed distributions (both Ubuntu
+    and Rocky Linux), which generic module is ideal?
+  options:
+  - ansible.builtin.package
+  - ansible.builtin.apt
+  - ansible.builtin.dnf
+  - ansible.builtin.pip
+  correct: ansible.builtin.package
+  explanation: The 'package' module acts as a proxy that detects the host OS and calls
+    apt, dnf, yum, or pacman automatically.
+- type: true_false
+  question: You need an active internet connection to read module documentation using
+    'ansible-doc'.
+  correct: false
+  explanation: '''ansible-doc'' reads documentation directly from Python docstrings
+    stored on your local control node offline.'
+- type: mcq
+  question: What section of 'ansible-doc <module>' provides working examples of how
+    to configure the module in a playbook?
+  options:
+  - EXAMPLES
+  - SYNOPSIS
+  - RETURN VALUES
+  - PARAMETERS
+  correct: EXAMPLES
+  explanation: The EXAMPLES section provides copy-pasteable playbook task examples.
+- type: mcq
+  question: Which module would you use for managing services on modern Linux distributions
+    running systemd?
+  options:
+  - ansible.builtin.systemd (or service)
+  - ansible.builtin.initd
+  - ansible.builtin.rc_service
+  - ansible.builtin.runlevel
+  correct: ansible.builtin.systemd (or service)
+  explanation: '''systemd'' or generic ''service'' manages systemd units, states,
+    and boot enablement.'
+- type: true_false
+  question: Short module names like 'copy' and 'ping' are deprecated and will not
+    work at all in playbooks.
+  correct: false
+  explanation: Short names still work for built-in modules for backward compatibility,
+    though FQCN is recommended.
+- type: mcq
+  question: What is the standard FQCN format?
+  options:
+  - namespace.collection_name.module_name
+  - module_name://collection/namespace
+  - namespace/module_name
+  - collection::namespace::module
+  correct: namespace.collection_name.module_name
+  explanation: E.g. community.general.slack or ansible.builtin.copy.
+- type: mcq
+  question: Which package manager module is specific to Debian and Ubuntu systems?
+  options:
+  - apt
+  - dnf
+  - yum
+  - zypper
+  correct: apt
+  explanation: '`ansible.builtin.apt` manages packages on Debian/Ubuntu systems.'
+- type: true_false
+  question: '''ansible-doc'' can also display documentation for inventory plugins,
+    callback plugins, and lookup plugins using the ''-t'' flag.'
+  correct: true
+  explanation: Yes, 'ansible-doc -t lookup <plugin>' or 'ansible-doc -t callback <plugin>'
+    inspects other plugin types.
+- type: mcq
+  question: In 'ansible-doc' output, what does a parameter marked with '= (required)'
+    indicate?
+  options:
+  - The task will fail with a validation error if this parameter is omitted
+  - The parameter is optional and defaults to true
+  - The parameter is only available in check mode
+  - The parameter requires root privilege escalation
+  correct: The task will fail with a validation error if this parameter is omitted
+  explanation: Required parameters must be supplied whenever the module is invoked.
+- type: mcq
+  question: Which package manager module is the default on modern RHEL 8/9 and Fedora?
+  options:
+  - dnf
+  - apt
+  - pacman
+  - apk
+  correct: dnf
+  explanation: DNF (Dandified YUM) is the package manager for modern RHEL/CentOS/Fedora
+    systems.
+- type: true_false
+  question: Custom collections installed from Ansible Galaxy are documented through
+    'ansible-doc' just like built-in modules.
+  correct: true
+  explanation: Any installed collection in your collections path can be inspected
+    via `ansible-doc namespace.collection.module`.
+- type: mcq
+  question: Which section of 'ansible-doc' explains the keys returned by the module
+    in JSON output?
+  options:
+  - RETURN VALUES
+  - PARAMETERS
+  - SYNOPSIS
+  - SEE ALSO
+  correct: RETURN VALUES
+  explanation: The RETURN VALUES section lists the keys returned on success or failure.
+- type: true_false
+  question: Using generic modules like 'service' guarantees identical parameter options
+    as specialized modules like 'systemd'.
+  correct: false
+  explanation: Generic modules provide lowest common denominator parameters; specialized
+    modules expose distro-specific features like daemon_reload.

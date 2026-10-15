@@ -1,0 +1,142 @@
+passing_score: 70
+questions:
+- type: mcq
+  question: Which parameter in the git module specifies the target branch, tag, or
+    commit to checkout?
+  options:
+  - version
+  - branch
+  - tag
+  - commit
+  correct: version
+  explanation: '`version` is the unified parameter that accepts branch names, tag
+    names, or commit SHAs.'
+- type: mcq
+  question: 'Why is deploying by immutable Git tags (e.g. version: v1.5.0) recommended
+    over dynamic branches (version: main) in production?'
+  options:
+  - Tags guarantee that the exact same tested code is deployed across all servers
+    without unexpected updates
+  - Branches require root privileges to checkout
+  - Tags run faster than branches in Python
+  - Git disables branches on remote Linux machines
+  correct: Tags guarantee that the exact same tested code is deployed across all servers
+    without unexpected updates
+  explanation: Tags represent static release milestones, preventing unexpected code
+    changes from breaking production.
+- type: true_false
+  question: Checking out a specific Git tag or commit SHA results in a 'detached HEAD'
+    state on the remote machine.
+  correct: true
+  explanation: Detached HEAD simply means HEAD points directly to a specific commit
+    rather than a branch pointer.
+- type: mcq
+  question: 'What happens if a target server is on branch ''staging'' and you run
+    a playbook task with ''version: main''?'
+  options:
+  - Ansible fetches remote changes, switches to branch 'main', and checks out the
+    latest commit
+  - The task fails because branch switching is forbidden in Ansible
+  - Ansible deletes the directory and reclones
+  - Ansible creates a merge conflict
+  correct: Ansible fetches remote changes, switches to branch 'main', and checks out
+    the latest commit
+  explanation: Ansible cleanly handles switching branches and updates the working
+    tree.
+- type: mcq
+  question: 'Can you specify a 7-character short commit SHA (e.g. version: 8a3f2bc)
+    in the version parameter?'
+  options:
+  - Yes, Git and Ansible accept both short and full 40-character commit hashes
+  - No, only full 40-character SHAs are valid
+  - No, only branch names are permitted
+  - Only if the commit starts with 000
+  correct: Yes, Git and Ansible accept both short and full 40-character commit hashes
+  explanation: Git resolves short SHAs as long as they are unique within the repository.
+- type: true_false
+  question: A detached HEAD state in a deployment directory prevents web servers (like
+    Nginx or Apache) from reading the files.
+  correct: false
+  explanation: Detached HEAD is purely an internal Git reference state; filesystem
+    files are regular readable files.
+- type: mcq
+  question: 'What happens if you specify a non-existent branch name (e.g. version:
+    does-not-exist)?'
+  options:
+  - The task fails with a 'Remote branch does-not-exist not found' error
+  - Ansible automatically creates a new empty branch with that name
+  - Ansible falls back to main
+  - Ansible creates a tag instead
+  correct: The task fails with a 'Remote branch does-not-exist not found' error
+  explanation: If the reference cannot be resolved on the remote, the git command
+    exits with code 128 (failure).
+- type: true_false
+  question: 'If you are pinned to a specific tag ''v1.0.0'', re-running the playbook
+    will never report ''changed: true'' once deployed.'
+  correct: true
+  explanation: Because a tag is immutable and points to a static commit SHA, `before`
+    and `after` will match.
+- type: mcq
+  question: Which parameter controls whether git submodules are checked out alongside
+    branches?
+  options:
+  - 'recursive: yes'
+  - 'submodules: all'
+  - 'include_submodules: true'
+  - 'children: fetch'
+  correct: 'recursive: yes'
+  explanation: '`recursive: yes` initializes and clones submodules recursively.'
+- type: mcq
+  question: What parameter allows checkout of pull request references (e.g. refs/pull/15/head)
+    from GitHub?
+  options:
+  - version
+  - refspec
+  - pr_number
+  - pull_request
+  correct: version
+  explanation: The `version` parameter supports custom Git refspecs directly.
+- type: true_false
+  question: 'The git module supports passing a Jinja2 variable for the version parameter
+    (e.g. version: "{{ app_version }}").'
+  correct: true
+  explanation: You can dynamically control versions per environment (e.g. staging
+    vs prod) using variables.
+- type: mcq
+  question: What parameter can verify GPG commit signatures during checkout?
+  options:
+  - 'verify_commit: yes'
+  - 'gpg_check: true'
+  - 'signature: required'
+  - 'trust_gpg: yes'
+  correct: 'verify_commit: yes'
+  explanation: '`verify_commit: yes` verifies the GPG signature of the checked out
+    commit.'
+- type: true_false
+  question: 'If a tag on the remote repository is deleted and replaced with a different
+    commit, ''force: yes'' is needed to update the local tag reference.'
+  correct: true
+  explanation: Rewriting tags requires force updating local tag references.
+- type: mcq
+  question: What is the default ref used when version is omitted?
+  options:
+  - HEAD
+  - master
+  - trunk
+  - origin/master
+  correct: HEAD
+  explanation: The default value is string 'HEAD'.
+- type: true_false
+  question: Branch names in Git are case-sensitive on Linux systems.
+  correct: true
+  explanation: Git branch references (`feature` vs `Feature`) are case-sensitive.
+- type: mcq
+  question: Which command-line option in Git is used by the module when tracking a
+    new remote branch?
+  options:
+  - --track origin/<branch>
+  - --bind <branch>
+  - --remote <branch>
+  - --pair origin
+  correct: --track origin/<branch>
+  explanation: Git sets up tracking branches using `--track`.

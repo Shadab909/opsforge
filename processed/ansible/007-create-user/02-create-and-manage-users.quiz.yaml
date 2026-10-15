@@ -1,0 +1,169 @@
+passing_score: 70
+questions:
+- type: mcq
+  question: 'What is the critical danger of omitting ''append: yes'' when specifying
+    secondary groups with ''groups: docker''?'
+  options:
+  - Ansible will remove the user from all other existing secondary groups (e.g. sudo,
+    adm)
+  - The user's home directory will be deleted immediately
+  - The user's password will be reset to blank
+  - The task will fail with a syntax error
+  correct: Ansible will remove the user from all other existing secondary groups (e.g.
+    sudo, adm)
+  explanation: 'Without `append: yes`, `groups` replaces the entire list of supplementary
+    groups.'
+- type: mcq
+  question: 'When removing a user with ''state: absent'', which parameter ensures
+    their home directory and mail spool are also deleted from disk?'
+  options:
+  - 'remove: yes'
+  - 'delete_home: true'
+  - 'purge: yes'
+  - 'clean: true'
+  correct: 'remove: yes'
+  explanation: '`remove: yes` passes `-r` to `userdel`, deleting `/home/<user>` and
+    mail spools.'
+- type: true_false
+  question: By default, 'create_home' is set to 'yes' in the user module, creating
+    the home directory if missing.
+  correct: true
+  explanation: '`create_home` defaults to `yes` (or `true`).'
+- type: mcq
+  question: Which shell path should be assigned to system service accounts to prevent
+    interactive login?
+  options:
+  - /sbin/nologin (or /bin/false)
+  - /bin/bash
+  - /bin/sh
+  - /bin/zsh
+  correct: /sbin/nologin (or /bin/false)
+  explanation: Setting shell to `/sbin/nologin` or `/bin/false` prevents terminal
+    login sessions.
+- type: mcq
+  question: What parameter is used to specify the user's primary group?
+  options:
+  - group
+  - groups
+  - primary_group
+  - gid
+  correct: group
+  explanation: '`group` defines the primary group; `groups` defines supplementary
+    groups.'
+- type: true_false
+  question: 'Setting ''system: yes'' creates an account with a numeric UID typically
+    below 1000 on Linux.'
+  correct: true
+  explanation: '`system: yes` instructs useradd to allocate from the system UID range.'
+- type: mcq
+  question: What parameter sets the real name or contact comment in /etc/passwd?
+  options:
+  - comment
+  - description
+  - real_name
+  - gecos
+  correct: comment
+  explanation: '`comment` writes to the GECOS field in `/etc/passwd`.'
+- type: mcq
+  question: How can you specify a custom non-standard home directory location (e.g.
+    /data/users/alex)?
+  options:
+  - 'home: /data/users/alex'
+  - 'dest: /data/users/alex'
+  - 'path: /data/users/alex'
+  - 'user_home: /data/users/alex'
+  correct: 'home: /data/users/alex'
+  explanation: '`home` configures the custom home path.'
+- type: true_false
+  question: 'If you delete a user with ''state: absent'' and ''remove: no'', their
+    files in /home remain on the disk.'
+  correct: true
+  explanation: The user is removed from user databases, but the directory tree is
+    left intact.
+- type: mcq
+  question: How can you specify an explicit numeric user ID for consistent cross-server
+    permissions?
+  options:
+  - 'uid: 1050'
+  - 'id: 1050'
+  - 'numeric_user: 1050'
+  - 'user_id: 1050'
+  correct: 'uid: 1050'
+  explanation: '`uid` explicitly assigns the numeric User ID.'
+- type: true_false
+  question: 'If you assign an existing user a new shell (e.g. changing from /bin/sh
+    to /bin/bash), Ansible will update it and report changed: true.'
+  correct: true
+  explanation: Ansible modifies `/etc/passwd` to reflect the new shell and marks the
+    task changed.
+- type: mcq
+  question: Can the 'groups' parameter accept a YAML list as well as a comma-separated
+    string?
+  options:
+  - 'Yes, both `groups: [sudo, docker]` and `groups: sudo,docker` are valid'
+  - No, only comma-separated strings are supported
+  - No, only YAML lists are supported
+  - Only if JSON format is used
+  correct: 'Yes, both `groups: [sudo, docker]` and `groups: sudo,docker` are valid'
+  explanation: Ansible flexibly accepts YAML lists or comma-separated strings for
+    group lists.
+- type: true_false
+  question: If the primary group specified in 'group' does not exist on the target
+    system, the user task will fail unless created first.
+  correct: true
+  explanation: The primary group must exist beforehand (e.g. created using `ansible.builtin.group`).
+- type: mcq
+  question: Which module should be used to create groups before adding users to them?
+  options:
+  - ansible.builtin.group
+  - ansible.builtin.user
+  - ansible.builtin.team
+  - ansible.builtin.role
+  correct: ansible.builtin.group
+  explanation: '`ansible.builtin.group` manages system groups.'
+- type: mcq
+  question: What parameter can lock or disable a user account without deleting it?
+  options:
+  - 'password_lock: yes'
+  - 'state: locked'
+  - 'disable: true'
+  - 'active: false'
+  correct: 'password_lock: yes'
+  explanation: '`password_lock: yes` locks the account in `/etc/shadow` (prefixing
+    hash with `!`).'
+- type: true_false
+  question: 'Modifying a user''s comment field on an existing user will cause Ansible
+    to report ''changed: true''.'
+  correct: true
+  explanation: 'Any difference between current state and requested state triggers
+    an update and reports changed: true.'
+- type: mcq
+  question: What parameter sets an account expiration date?
+  options:
+  - 'expires: 1776297600 (or YYYY-MM-DD)'
+  - expire_date
+  - valid_until
+  - deadline
+  correct: 'expires: 1776297600 (or YYYY-MM-DD)'
+  explanation: '`expires` sets epoch or date string for account expiration.'
+- type: true_false
+  question: 'Creating a user with ''create_home: no'' will still create skeleton files
+    (.bashrc) in /tmp.'
+  correct: false
+  explanation: '`create_home: no` skips creating any home directory or skeleton files.'
+- type: mcq
+  question: Which parameter can force user removal even if the user is currently logged
+    in?
+  options:
+  - 'force: yes'
+  - 'kill: true'
+  - 'aggressive: yes'
+  - 'terminate: true'
+  correct: 'force: yes'
+  explanation: '`force: yes` forces removal with `userdel -f` even if processes are
+    running under that user.'
+- type: true_false
+  question: If you run a task creating a user that already exists with the exact same
+    attributes, 'changed' will be false.
+  correct: true
+  explanation: Because the user matches the desired specification, it is idempotent.

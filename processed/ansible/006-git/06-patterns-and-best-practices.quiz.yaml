@@ -1,0 +1,167 @@
+passing_score: 70
+questions:
+- type: mcq
+  question: 'What is the primary benefit of setting ''depth: 1'' in the git module?'
+  options:
+  - It performs a shallow clone with only the most recent commit, dramatically saving
+    bandwidth and disk space
+  - It prevents developers from committing bugs
+  - It compiles Python code into binary before cloning
+  - It enables multi-threading on the control node
+  correct: It performs a shallow clone with only the most recent commit, dramatically
+    saving bandwidth and disk space
+  explanation: '`depth: 1` truncates Git history to a single commit, reducing clone
+    time and size by up to 90%.'
+- type: mcq
+  question: In the atomic symlink deployment pattern, how is the active application
+    version switched without downtime?
+  options:
+  - By updating a symbolic link ('current') to point to the newly cloned release directory
+  - By stopping the web server for 10 minutes
+  - By renaming files one by one while the server is running
+  - By rebooting the server after each pull
+  correct: By updating a symbolic link ('current') to point to the newly cloned release
+    directory
+  explanation: Switching a filesystem symlink is an atomic operation in POSIX operating
+    systems, avoiding partial-write race conditions.
+- type: true_false
+  question: 'Relative paths (e.g. dest: myapp) should always be avoided in the ''dest''
+    parameter in production playbooks.'
+  correct: true
+  explanation: Relative paths depend on the remote user's current working directory,
+    which can cause unpredictable placements.
+- type: mcq
+  question: Which parameter ensures only the requested branch is fetched, ignoring
+    all other remote branches?
+  options:
+  - 'single_branch: yes'
+  - 'only_branch: true'
+  - 'one_branch: yes'
+  - 'exclusive_branch: true'
+  correct: 'single_branch: yes'
+  explanation: '`single_branch: yes` clones only the history leading to the tip of
+    the specified branch.'
+- type: mcq
+  question: What is the danger of running 'git pull' directly into an active, running
+    web document root (/var/www/html)?
+  options:
+  - Visitors might request files in the middle of being overwritten, causing partial
+    loads or 500 errors
+  - Git will delete the web server binary
+  - The Linux kernel will lock the filesystem into read-only mode
+  - The SSL certificates will be revoked
+  correct: Visitors might request files in the middle of being overwritten, causing
+    partial loads or 500 errors
+  explanation: Non-atomic updates create race conditions where partial files or mismatched
+    dependencies are served.
+- type: true_false
+  question: 'Setting ''depth: 1'' is ideal if you intend to run ''git blame'' or inspect
+    years of commit history on the production server.'
+  correct: false
+  explanation: Shallow clones lack historical commits, so historical inspection tools
+    like git log and git blame are limited.
+- type: mcq
+  question: How does Ansible know when to fire a handler attached to a git deployment
+    task?
+  options:
+  - 'When the git task returns ''changed: true'' (meaning new code was pulled or cloned)'
+  - Handlers always execute regardless of task outcome
+  - When git returns an error exit code
+  - Only if the user explicitly presses Enter
+  correct: 'When the git task returns ''changed: true'' (meaning new code was pulled
+    or cloned)'
+  explanation: Handlers only execute if at least one notifying task reports a change.
+- type: true_false
+  question: 'Shallow clones (''depth: 1'') can still be updated on subsequent runs
+    when ''update: yes'' is active.'
+  correct: true
+  explanation: Git supports fetching and advancing shallow clones seamlessly.
+- type: mcq
+  question: What parameter is used to checkout nested Git repositories defined in
+    a .gitmodules file?
+  options:
+  - 'recursive: yes'
+  - 'nested: true'
+  - 'submodules: clone'
+  - 'children: all'
+  correct: 'recursive: yes'
+  explanation: '`recursive: yes` runs `git submodule update --init --recursive`.'
+- type: mcq
+  question: Which of the following is an anti-pattern when using the git module in
+    production?
+  options:
+  - Deploying to dynamic branches (like 'main') without pinning to release tags
+  - Using absolute paths for dest
+  - Using read-only SSH deploy keys
+  - 'Setting depth: 1 for faster deployment'
+  correct: Deploying to dynamic branches (like 'main') without pinning to release
+    tags
+  explanation: Deploying unpinned branches allows untested commits pushed by developers
+    to immediately reach production.
+- type: true_false
+  question: Atomic symlink deployments make rolling back to a previous version as
+    simple as pointing the symlink to the older release directory.
+  correct: true
+  explanation: Instant rollbacks are the signature advantage of symlink release patterns.
+- type: mcq
+  question: What parameter can verify the GPG signature of git commits during deployment?
+  options:
+  - 'verify_commit: yes'
+  - 'gpg: true'
+  - 'check_sig: yes'
+  - 'valid_gpg: true'
+  correct: 'verify_commit: yes'
+  explanation: '`verify_commit: yes` verifies the commit''s GPG signature against
+    trusted public keys.'
+- type: true_false
+  question: Ansible's git module can checkout private repositories without credentials
+    if the repository is marked internal on GitHub.
+  correct: false
+  explanation: Both private and internal repositories require authentication (SSH
+    key or token).
+- type: mcq
+  question: What parameter can be used to set the git remote tracking name if not
+    using 'origin'?
+  options:
+  - remote
+  - upstream_name
+  - tracking
+  - remote_origin
+  correct: remote
+  explanation: 'The `remote` parameter defines the remote name (default: `origin`).'
+- type: true_false
+  question: Using the 'file' module to remove old release directories (keeping e.g.
+    the last 5 releases) is a recommended maintenance practice.
+  correct: true
+  explanation: Pruning old releases prevents deployment disks from filling up over
+    time.
+- type: mcq
+  question: Which parameter ensures the repository is archived into a tar/zip file
+    rather than left as a git repo?
+  options:
+  - archive
+  - dest_format
+  - zip
+  - tarball
+  correct: archive
+  explanation: '`archive: /path/to/archive.tar.gz` creates a clean tarball of the
+    checked-out version.'
+- type: true_false
+  question: The git module automatically reloads web servers (like Nginx) whenever
+    it pulls code.
+  correct: false
+  explanation: The git module only manages Git repository state. Service reloads must
+    be configured via handlers.
+- type: mcq
+  question: What is the primary reason to use SSH deploy keys instead of HTTPS with
+    personal credentials?
+  options:
+  - SSH deploy keys do not leave personal developer passwords stored in plaintext
+    in the .git/config file
+  - HTTPS is not supported on Linux
+  - SSH keys are slower than HTTP
+  - GitHub discontinued HTTPS in 2020
+  correct: SSH deploy keys do not leave personal developer passwords stored in plaintext
+    in the .git/config file
+  explanation: SSH keys are stored safely with restricted permissions, whereas HTTPS
+    embeds tokens in `.git/config`.
