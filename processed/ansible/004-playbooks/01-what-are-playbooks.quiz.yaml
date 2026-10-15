@@ -1,0 +1,144 @@
+passing_score: 70
+questions:
+- type: mcq
+  question: What is the primary format used to write Ansible playbooks?
+  options:
+  - XML
+  - YAML
+  - JSON
+  - INI
+  correct: YAML
+  explanation: Ansible playbooks are blueprints of automation tasks written in human-readable
+    YAML format.
+- type: mcq
+  question: What is the primary operational difference between Ansible ad-hoc commands
+    and playbooks?
+  options:
+  - Ad-hoc commands are for quick one-time tasks; playbooks orchestrate complex, multi-step
+    workflows
+  - Ad-hoc commands run on Linux; playbooks only run on Windows
+  - Ad-hoc commands require YAML files; playbooks are CLI-only
+  - Ad-hoc commands support conditionals; playbooks do not
+  correct: Ad-hoc commands are for quick one-time tasks; playbooks orchestrate complex,
+    multi-step workflows
+  explanation: Ad-hoc commands are single-line actions ideal for quick checks, whereas
+    playbooks orchestrate repeatable, multi-machine workflows.
+- type: true_false
+  question: Ansible playbooks are idempotent, meaning you can safely run them multiple
+    times without altering the desired final state.
+  correct: true
+  explanation: Idempotency ensures that running a playbook repeatedly makes changes
+    only when the target state diverges from the desired state.
+- type: mcq
+  question: Which dedicated command-line tool is used to execute an Ansible playbook?
+  options:
+  - ansible --play
+  - ansible-playbook
+  - ansible-exec
+  - ansible-run
+  correct: ansible-playbook
+  explanation: The `ansible-playbook` command is the dedicated CLI utility for parsing
+    and running playbooks.
+- type: true_false
+  question: Conditionals (such as the `when:` keyword) are fully supported in Ansible
+    ad-hoc commands.
+  correct: false
+  explanation: Conditionals are not supported in ad-hoc commands; they require playbooks.
+- type: mcq
+  question: How do playbooks handle version control compared to ad-hoc commands?
+  options:
+  - Ad-hoc commands are easily version controlled in Git repositories
+  - Playbooks are structured YAML files that can be version-controlled, code-reviewed,
+    and tracked in Git
+  - Playbooks cannot be tracked with Git because they are compiled binaries
+  - Both provide identical version control capabilities
+  correct: Playbooks are structured YAML files that can be version-controlled, code-reviewed,
+    and tracked in Git
+  explanation: Playbooks live as plain text files, enabling team collaboration, pull
+    requests, and Git revision history.
+- type: mcq
+  question: Which of the following is NOT listed as a core benefit of using Ansible
+    playbooks?
+  options:
+  - Repeatability across development, staging, and production
+  - Multi-tier host orchestration
+  - Requiring background agent daemons to run continuously on target hosts
+  - Self-documenting configuration
+  correct: Requiring background agent daemons to run continuously on target hosts
+  explanation: Ansible is agentless; target hosts do not require background daemons,
+    only SSH and Python.
+- type: true_false
+  question: Playbooks allow advanced error handling, including blocks, rescues, and
+    rollback capabilities.
+  correct: true
+  explanation: Playbooks support blocks, rescue sections, and failure conditions,
+    unlike basic ad-hoc commands.
+- type: mcq
+  question: Why is the YAML format considered advantageous for documentation in playbooks?
+  options:
+  - It compiles directly into bytecode
+  - It is human-readable and self-documenting, making automation clear to both developers
+    and sysadmins
+  - It hides infrastructure details from users
+  - It encrypts all parameters by default
+  correct: It is human-readable and self-documenting, making automation clear to both
+    developers and sysadmins
+  explanation: YAML uses clear indentation and plain English keys, acting as living
+    documentation for your systems.
+- type: mcq
+  question: What is the orchestration capability of an ad-hoc command?
+  options:
+  - Single task on specified hosts
+  - Multi-tier rolling deployment across 50 heterogeneous server tiers
+  - Automated database migrations with rollbacks
+  - Complex DAG task graphs
+  correct: Single task on specified hosts
+  explanation: Ad-hoc commands invoke only a single module task at a time.
+- type: true_false
+  question: Playbooks can orchestrate tasks across multiple groups of hosts in a single
+    execution file.
+  correct: true
+  explanation: A playbook can define multiple plays, each targeting a distinct host
+    group (e.g. database servers, then load balancers, then web servers).
+- type: mcq
+  question: In what way does playbook reusability benefit enterprise DevOps teams?
+  options:
+  - Playbooks can be shared across teams, projects, and environments with parameterized
+    inputs
+  - Playbooks lock configurations to a specific IP address
+  - Playbooks cannot be modified once executed
+  - Playbooks require paying a license fee per run
+  correct: Playbooks can be shared across teams, projects, and environments with parameterized
+    inputs
+  explanation: Parametric playbooks and roles allow teams to share battle-tested automation
+    across the organization.
+- type: mcq
+  question: Which of the following scenarios is an ideal candidate for an ad-hoc command
+    rather than a playbook?
+  options:
+  - Quickly pinging 100 servers to verify SSH reachability before an outage window
+  - Orchestrating a blue-green zero-downtime microservice deployment
+  - Provisioning a 3-node PostgreSQL cluster with replication and backup cron jobs
+  - Enforcing CIS compliance benchmarks with 200 security configuration steps
+  correct: Quickly pinging 100 servers to verify SSH reachability before an outage
+    window
+  explanation: Ad-hoc commands are best suited for rapid, one-off diagnostic or status
+    queries.
+- type: true_false
+  question: An Ansible playbook is compiled into a native binary executable before
+    being transferred to target servers.
+  correct: false
+  explanation: Ansible playbooks are interpreted directly at runtime; Ansible transfers
+    lightweight Python execution payloads dynamically over SSH.
+- type: mcq
+  question: How does Ansible enforce the concept of Infrastructure as Code (IaC) with
+    playbooks?
+  options:
+  - By declaring desired end-state configurations in version-controlled text files
+  - By generating proprietary hardware microcode
+  - By requiring manual GUI point-and-click interventions
+  - By deleting all existing servers and creating new ones on each run
+  correct: By declaring desired end-state configurations in version-controlled text
+    files
+  explanation: Playbooks express desired state declaratively as plain text code that
+    can be audited, reviewed, and tracked.

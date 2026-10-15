@@ -1,0 +1,288 @@
+passing_score: 70
+questions:
+- type: mcq
+  question: Which variable source has the absolute HIGHEST precedence in Ansible?
+  options:
+  - Extra variables passed on the command line via `-e` or `--extra-vars`
+  - Playbook `vars:` section
+  - Host facts
+  - Role defaults
+  correct: Extra variables passed on the command line via `-e` or `--extra-vars`
+  explanation: Extra variables (`-e`) always override all other variable definitions
+    in Ansible.
+- type: mcq
+  question: Which variable source has the LOWEST precedence in Ansible?
+  options:
+  - Role defaults (`defaults/main.yml`)
+  - Inventory file variables
+  - Playbook vars
+  - Registered variables
+  correct: Role defaults (`defaults/main.yml`)
+  explanation: Role defaults are intentionally designed to have the lowest priority
+    so they can be easily overridden.
+- type: mcq
+  question: 'How do you access the `port` property of a dictionary variable defined
+    as `database: { host: ''db.local'', port: 5432 }`?'
+  options:
+  - '{{ database.port }} or {{ database[''port''] }}'
+  - '{{ database->port }}'
+  - '{{ database:port }}'
+  - '{{ database.get(port) }}'
+  correct: '{{ database.port }} or {{ database[''port''] }}'
+  explanation: Ansible Jinja2 templates support both dot notation (`database.port`)
+    and bracket notation (`database['port']`).
+- type: mcq
+  question: Which directive in a play allows importing an external YAML file containing
+    variables?
+  options:
+  - 'vars_files:'
+  - 'import_vars:'
+  - 'include_env:'
+  - 'load_vars:'
+  correct: 'vars_files:'
+  explanation: The `vars_files:` directive takes a list of external YAML files containing
+    variable mappings.
+- type: mcq
+  question: How can you read an environment variable from the controller machine inside
+    a playbook?
+  options:
+  - '{{ lookup(''env'', ''VARIABLE_NAME'') }}'
+  - '{{ env.VARIABLE_NAME }}'
+  - $VARIABLE_NAME
+  - '{{ system(''VARIABLE_NAME'') }}'
+  correct: '{{ lookup(''env'', ''VARIABLE_NAME'') }}'
+  explanation: The `lookup('env', 'VAR')` plugin reads environment variables from
+    the Ansible controller.
+- type: true_false
+  question: The `environment:` keyword can be applied at the task level to provide
+    environment variables specifically for that task.
+  correct: true
+  explanation: Applying `environment:` on a task supplies environment variables only
+    during that task's execution.
+- type: mcq
+  question: Which module is recommended to permanently set an environment variable
+    on a target remote host by editing `/etc/environment`?
+  options:
+  - ansible.builtin.lineinfile
+  - ansible.builtin.set_env
+  - ansible.builtin.touch
+  - ansible.builtin.export
+  correct: ansible.builtin.lineinfile
+  explanation: '`ansible.builtin.lineinfile` ensures specific lines (like `PORT="8080"`)
+    exist in configuration files like `/etc/environment`.'
+- type: mcq
+  question: In what order of precedence do Host Facts, Playbook Vars, and Registered
+    Variables rank relative to each other?
+  options:
+  - Playbook vars (lower) -> Host facts -> Registered variables (higher)
+  - Registered variables (lower) -> Playbook vars -> Host facts (higher)
+  - Host facts (lower) -> Registered variables -> Playbook vars (higher)
+  - All three have identical precedence
+  correct: Playbook vars (lower) -> Host facts -> Registered variables (higher)
+  explanation: 'According to the Ansible 10-level hierarchy: Playbook vars (#3) <
+    Host facts (#5) < Registered variables (#6).'
+- type: mcq
+  question: Which module allows creating or overriding variables dynamically during
+    playbook execution across subsequent tasks?
+  options:
+  - ansible.builtin.set_fact
+  - ansible.builtin.var
+  - ansible.builtin.define
+  - ansible.builtin.assign
+  correct: ansible.builtin.set_fact
+  explanation: '`set_fact` assigns dynamic variables during runtime that persist across
+    subsequent tasks on that host.'
+- type: mcq
+  question: How can you prompt the user interactively in the terminal for variable
+    values before a play runs?
+  options:
+  - Using the `vars_prompt:` directive in the play
+  - Using `input:` in a task
+  - Using `read:` in the inventory
+  - Ansible does not support terminal prompts
+  correct: Using the `vars_prompt:` directive in the play
+  explanation: '`vars_prompt:` prompts the user for sensitive or runtime values, with
+    options like `private: yes` to hide typing.'
+- type: true_false
+  question: Variables defined in `[webservers:vars]` in an inventory file take higher
+    precedence than `vars:` defined inside a playbook.
+  correct: false
+  explanation: Playbook `vars:` take higher precedence than inventory group/host variables.
+- type: mcq
+  question: How can you pass a JSON or YAML file containing extra variables directly
+    via the command line?
+  options:
+  - ansible-playbook playbook.yaml -e "@vars/override.yml"
+  - ansible-playbook playbook.yaml --include-vars vars/override.yml
+  - ansible-playbook playbook.yaml -f vars/override.yml
+  - ansible-playbook playbook.yaml --vars-file vars/override.yml
+  correct: ansible-playbook playbook.yaml -e "@vars/override.yml"
+  explanation: Prefixing the file path with an `@` symbol (`-e "@file.yml"`) tells
+    Ansible to load extra variables from that file.
+- type: mcq
+  question: 'How do you access an element of a list variable `packages: [''nginx'',
+    ''git'', ''curl'']` in a task?'
+  options:
+  - '{{ packages[0] }}'
+  - '{{ packages(0) }}'
+  - '{{ packages.first }}'
+  - '{{ packages->0 }}'
+  correct: '{{ packages[0] }}'
+  explanation: 'Lists use zero-based index access in brackets: `{{ packages[0] }}`
+    evaluates to `''nginx''`.'
+- type: true_false
+  question: The `environment:` keyword set at the play level applies to all tasks
+    in that play.
+  correct: true
+  explanation: When declared at the play level, `environment:` supplies variables
+    to every task within that play.
+- type: mcq
+  question: If `app_port` is defined as 8080 in role defaults, 8081 in inventory,
+    8082 in playbook vars, and passed as `-e app_port=9000`, what will its value be?
+  options:
+  - '9000'
+  - '8082'
+  - '8081'
+  - '8080'
+  correct: '9000'
+  explanation: '`-e` extra-vars always takes absolute highest priority over all other
+    definitions.'
+- type: true_false
+  question: Facts gathered by Ansible automatically (like `ansible_distribution`)
+    have higher precedence than role defaults.
+  correct: true
+  explanation: 'Host facts rank at priority #5, whereas role defaults rank at priority
+    #1 (lowest).'
+- type: mcq
+  question: What is the variable precedence level of `set_fact` relative to `registered
+    variables`?
+  options:
+  - '`set_fact` (priority #7) is higher precedence than `registered variables` (priority
+    #6)'
+  - '`registered variables` is higher than `set_fact`'
+  - Both share the exact same precedence level
+  - '`set_fact` is lower than role defaults'
+  correct: '`set_fact` (priority #7) is higher precedence than `registered variables`
+    (priority #6)'
+  explanation: A fact set via `set_fact` will override a previously registered variable
+    of the same name.
+- type: true_false
+  question: You can prepend environment variables in the command line (e.g. `PORT="8080"
+    ansible-playbook playbook.yaml`) to set environment variables on the controller.
+  correct: true
+  explanation: Standard shell syntax sets the env var for the controller process,
+    accessible via `lookup('env', 'PORT')`.
+- type: mcq
+  question: Which of the following is a valid way to define a list of multiple packages
+    in playbook `vars:`?
+  options:
+  - "packages:\n  - nginx\n  - git\n  - curl"
+  - packages = (nginx, git, curl)
+  - packages -> [nginx, git, curl]
+  - <packages><item>nginx</item></packages>
+  correct: "packages:\n  - nginx\n  - git\n  - curl"
+  explanation: A YAML list begins with `- ` for each element at equal indentation.
+- type: mcq
+  question: What happens if a variable is referenced with `{{ undefined_var }}` but
+    has never been defined anywhere?
+  options:
+  - The task fails with an 'undefined variable' error by default
+  - Ansible silently replaces it with an empty string
+  - Ansible prompts the user in the console
+  - Ansible uses the string 'null'
+  correct: The task fails with an 'undefined variable' error by default
+  explanation: Ansible enforces strict variable evaluation by default and halts with
+    an 'AnsibleUndefinedVariable' error.
+- type: true_false
+  question: You can provide a default fallback value for a variable in Jinja2 using
+    the filter `{{ my_var | default('fallback_value') }}`.
+  correct: true
+  explanation: The `| default(...)` Jinja2 filter supplies a fallback if the variable
+    is undefined.
+- type: mcq
+  question: Where should host-specific variables be placed in a standard Ansible project
+    directory structure?
+  options:
+  - host_vars/<hostname>.yml
+  - etc/hosts.yml
+  - playbook_hosts/
+  - vars/global.yml
+  correct: host_vars/<hostname>.yml
+  explanation: Ansible automatically discovers host-specific variables placed in `host_vars/<hostname>.yml`.
+- type: mcq
+  question: Where should group-specific variables be placed in a standard Ansible
+    project directory structure?
+  options:
+  - group_vars/<groupname>.yml
+  - groups/<groupname>.yml
+  - vars/groups.yml
+  - inventory/vars.yml
+  correct: group_vars/<groupname>.yml
+  explanation: Ansible automatically loads group variables from `group_vars/<groupname>.yml`
+    matching inventory groups.
+- type: true_false
+  question: 'Variables defined in `vars_prompt:` can hide password input by setting
+    `private: yes`.'
+  correct: true
+  explanation: 'Setting `private: yes` masks the input characters in the terminal,
+    ideal for credentials.'
+- type: mcq
+  question: 'In the precedence hierarchy, which has higher priority: `vars_files`
+    or `playbook vars`?'
+  options:
+  - '`vars_files` (priority #4) is higher precedence than `playbook vars` (priority
+    #3)'
+  - '`playbook vars` is higher than `vars_files`'
+  - They are identical and conflict
+  - Whichever file was created earliest
+  correct: '`vars_files` (priority #4) is higher precedence than `playbook vars` (priority
+    #3)'
+  explanation: Variables loaded from external `vars_files` take precedence over inlined
+    playbook `vars:`.
+- type: mcq
+  question: What is the variable precedence level of `Play vars_prompt` relative to
+    `Play vars`?
+  options:
+  - '`Play vars` (priority #9) has higher precedence than `vars_prompt` (priority
+    #8)'
+  - '`vars_prompt` has higher precedence than `Play vars`'
+  - They are strictly identical in precedence
+  - '`vars_prompt` is lower than role defaults'
+  correct: '`Play vars` (priority #9) has higher precedence than `vars_prompt` (priority
+    #8)'
+  explanation: 'In the 10-level hierarchy, Play vars_prompt is #8 and Play vars is
+    #9, right below Extra vars (#10).'
+- type: true_false
+  question: When defining dictionary variables, nested keys can contain lists and
+    further nested dictionaries.
+  correct: true
+  explanation: YAML dictionaries can be nested to arbitrary depths containing lists,
+    mappings, and scalar values.
+- type: mcq
+  question: How can you inject an environment variable named `MY_VAR` from the shell
+    directly into extra-vars when invoking `ansible-playbook`?
+  options:
+  - ansible-playbook playbook.yaml -e "my_var=$MY_VAR"
+  - ansible-playbook playbook.yaml --import-env MY_VAR
+  - ansible-playbook playbook.yaml -v MY_VAR
+  - ansible-playbook playbook.yaml --env:MY_VAR
+  correct: ansible-playbook playbook.yaml -e "my_var=$MY_VAR"
+  explanation: Shell variable expansion `$MY_VAR` inside quotes evaluates before passing
+    into `-e`.
+- type: mcq
+  question: "In the following playbook snippet, what will the debug task output?\n\
+    \nvars:\n  app_port: 8082\nvars_files:\n  - vars.yml # (contains app_port: 8083)"
+  options:
+  - '8083'
+  - '8082'
+  - Both values separated by comma
+  - Ansible throws a duplicate variable error
+  correct: '8083'
+  explanation: '`vars_files` (#4) overrides playbook `vars:` (#3), so `app_port` will
+    evaluate to 8083.'
+- type: true_false
+  question: 'In `vars_prompt:`, setting `private: no` allows the characters entered
+    by the user to be visibly displayed on the console screen as they type.'
+  correct: true
+  explanation: '`private: no` makes typing visible in the terminal (useful for non-secret
+    values like ports or usernames).'

@@ -1,8 +1,6 @@
 # User data is personal — don't commit, just carry the folder
 #user_data/
 
-# Processed content can be regenerated
-processed/
 
 # Python
 __pycache__/

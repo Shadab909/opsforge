@@ -1,0 +1,50 @@
+name: Ansible Facts
+slug: 005-facts
+description: Discover, filter, and leverage dynamic system facts, optimize performance,
+  and define custom local facts.
+display_order: 5
+total_chunks: 6
+total_questions: 105
+chunks:
+- slug: 01-how-to-view-facts
+  title: 01. Viewing Facts & Architecture
+  file: 01-how-to-view-facts.md
+  quiz_file: 01-how-to-view-facts.quiz.yaml
+  estimated_time: 5
+  question_count: 15
+  has_hands_on: false
+- slug: 02-how-to-use-facts-in-playbooks
+  title: 02. Using Facts in Playbook Logic
+  file: 02-how-to-use-facts-in-playbooks.md
+  quiz_file: 02-how-to-use-facts-in-playbooks.quiz.yaml
+  estimated_time: 6
+  question_count: 18
+  has_hands_on: false
+- slug: 03-commonly-used-facts
+  title: 03. Commonly Used Facts Reference
+  file: 03-commonly-used-facts.md
+  quiz_file: 03-commonly-used-facts.quiz.yaml
+  estimated_time: 6
+  question_count: 20
+  has_hands_on: false
+- slug: 04-disabling-fact-gathering
+  title: 04. Disabling & Optimizing Fact Gathering
+  file: 04-disabling-fact-gathering.md
+  quiz_file: 04-disabling-fact-gathering.quiz.yaml
+  estimated_time: 5
+  question_count: 16
+  has_hands_on: false
+- slug: 05-custom-facts
+  title: 05. Custom Facts (Static & Dynamic)
+  file: 05-custom-facts.md
+  quiz_file: 05-custom-facts.quiz.yaml
+  estimated_time: 6
+  question_count: 18
+  has_hands_on: false
+- slug: 06-filtering-and-cli-practices
+  title: 06. Fact Filtering & Practical Automation
+  file: 06-filtering-and-cli-practices.md
+  quiz_file: 06-filtering-and-cli-practices.quiz.yaml
+  estimated_time: 7
+  question_count: 18
+  has_hands_on: true

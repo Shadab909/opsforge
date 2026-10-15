@@ -1,0 +1,186 @@
+passing_score: 70
+questions:
+- type: mcq
+  question: What is the difference between `ansible_distribution` and `ansible_os_family`?
+  options:
+  - '`ansible_distribution` identifies the specific OS (e.g. ''Ubuntu'', ''Rocky''),
+    while `ansible_os_family` identifies the broader lineage (e.g. ''Debian'', ''RedHat'')'
+  - '`ansible_distribution` is for Linux; `ansible_os_family` is only for Windows'
+  - '`ansible_os_family` is deprecated'
+  - They are identical aliases for the exact same string
+  correct: '`ansible_distribution` identifies the specific OS (e.g. ''Ubuntu'', ''Rocky''),
+    while `ansible_os_family` identifies the broader lineage (e.g. ''Debian'', ''RedHat'')'
+  explanation: '`ansible_os_family` groups distributions into broad families (''Debian'',
+    ''RedHat'', ''Archlinux'', ''Windows''), whereas `ansible_distribution` names
+    the exact distro.'
+- type: mcq
+  question: If target node A is running Ubuntu 22.04 and target node B is running
+    Debian 11, what will `ansible_os_family` evaluate to on both nodes?
+  options:
+  - Debian
+  - Ubuntu
+  - Linux
+  - POSIX
+  correct: Debian
+  explanation: Both Ubuntu and Debian belong to the `Debian` OS family.
+- type: mcq
+  question: Which fact contains the short hostname of the target node without domain
+    components?
+  options:
+  - ansible_hostname
+  - ansible_fqdn
+  - ansible_nodename
+  - ansible_domain
+  correct: ansible_hostname
+  explanation: '`ansible_hostname` reports the short hostname, whereas `ansible_fqdn`
+    reports the fully qualified domain name.'
+- type: mcq
+  question: Which fact reports the Fully Qualified Domain Name (e.g. `app1.us-east.example.com`)?
+  options:
+  - ansible_fqdn
+  - ansible_hostname
+  - ansible_domain
+  - ansible_full_name
+  correct: ansible_fqdn
+  explanation: '`ansible_fqdn` contains the complete domain-qualified hostname.'
+- type: mcq
+  question: Which fact contains the CPU hardware architecture (e.g. `x86_64` or `aarch64`)?
+  options:
+  - ansible_architecture
+  - ansible_cpu_type
+  - ansible_hardware
+  - ansible_arch_family
+  correct: ansible_architecture
+  explanation: '`ansible_architecture` reports CPU architecture like `x86_64`, `aarch64`,
+    or `armv7l`.'
+- type: mcq
+  question: Which fact contains a list of all IPv4 addresses assigned to all network
+    interfaces on the target host?
+  options:
+  - ansible_all_ipv4_addresses
+  - ansible_interfaces_ip
+  - ansible_ips
+  - ansible_net_addresses
+  correct: ansible_all_ipv4_addresses
+  explanation: '`ansible_all_ipv4_addresses` returns a list of all IPv4 addresses
+    across all interfaces on the node.'
+- type: mcq
+  question: Which fact contains the list of DNS nameserver IP addresses configured
+    on the target machine?
+  options:
+  - ansible_dns.nameservers
+  - ansible_nameservers
+  - ansible_network.dns
+  - ansible_resolv_conf
+  correct: ansible_dns.nameservers
+  explanation: '`ansible_dns.nameservers` extracts the list of DNS resolvers from
+    `/etc/resolv.conf`.'
+- type: mcq
+  question: Which fact represents the total physical RAM of the host in Megabytes?
+  options:
+  - ansible_memory_mb.real.total
+  - ansible_memtotal_mb
+  - ansible_memory.total
+  - ansible_ram_size
+  correct: ansible_memory_mb.real.total
+  explanation: '`ansible_memory_mb.real.total` provides the total physical memory
+    in megabytes as an integer.'
+- type: mcq
+  question: Which fact reports the total amount of swap space in Megabytes?
+  options:
+  - ansible_memory_mb.swap.total
+  - ansible_swap_mb
+  - ansible_swap_total
+  - ansible_virtual_memory.swap
+  correct: ansible_memory_mb.swap.total
+  explanation: '`ansible_memory_mb.swap.total` provides the configured swap capacity
+    in megabytes.'
+- type: mcq
+  question: Which fact returns the total number of logical virtual CPUs (threads/vCPUs)?
+  options:
+  - ansible_processor_vcpus
+  - ansible_processor_count
+  - ansible_processor_cores
+  - ansible_threads
+  correct: ansible_processor_vcpus
+  explanation: '`ansible_processor_vcpus` reports the total number of logical processors/vCPUs
+    available to the operating system.'
+- type: mcq
+  question: What does `ansible_processor_count` report?
+  options:
+  - The number of physical CPU sockets
+  - The number of CPU cores per socket
+  - The clock speed in GHz
+  - The processor cache size
+  correct: The number of physical CPU sockets
+  explanation: '`ansible_processor_count` reports the count of physical CPU sockets.'
+- type: mcq
+  question: Which fact reports the primary network interface name associated with
+    the default route (e.g. `eth0` or `ens3`)?
+  options:
+  - ansible_default_ipv4.interface
+  - ansible_default_interface
+  - ansible_primary_nic
+  - ansible_interface_name
+  correct: ansible_default_ipv4.interface
+  explanation: '`ansible_default_ipv4.interface` provides the interface name for default
+    IPv4 routing.'
+- type: mcq
+  question: Which fact reports the current remote login user account running the task?
+  options:
+  - ansible_user (or ansible_user_id)
+  - ansible_login
+  - ansible_account
+  - ansible_whoami
+  correct: ansible_user (or ansible_user_id)
+  explanation: '`ansible_user` (and `ansible_user_id`) reports the username executing
+    the task on the target host.'
+- type: true_false
+  question: On an AlmaLinux or Rocky Linux server, `ansible_os_family` will report
+    'RedHat'.
+  correct: true
+  explanation: AlmaLinux, Rocky Linux, CentOS, Fedora, and RHEL all report `RedHat`
+    as their `ansible_os_family`.
+- type: mcq
+  question: Which fact contains the distribution major version string (such as '22.04'
+    or '9.1')?
+  options:
+  - ansible_distribution_version
+  - ansible_os_version
+  - ansible_version_id
+  - ansible_release_number
+  correct: ansible_distribution_version
+  explanation: '`ansible_distribution_version` holds the distribution version number.'
+- type: true_false
+  question: The fact `ansible_default_ipv4.gateway` contains the default gateway's
+    IP address.
+  correct: true
+  explanation: '`ansible_default_ipv4.gateway` stores the default gateway IPv4 address.'
+- type: mcq
+  question: Which fact contains the distribution release codename (e.g. 'jammy' for
+    Ubuntu 22.04)?
+  options:
+  - ansible_distribution_release
+  - ansible_codename
+  - ansible_release_tag
+  - ansible_dist_name
+  correct: ansible_distribution_release
+  explanation: '`ansible_distribution_release` provides the official release codename.'
+- type: true_false
+  question: '`ansible_memory_mb.real.free` provides the amount of unused RAM in megabytes.'
+  correct: true
+  explanation: '`real.free` indicates free memory available in MB.'
+- type: mcq
+  question: If you want to configure an NTP or time service only on x86_64 machines,
+    what condition should you use?
+  options:
+  - 'when: ansible_architecture == ''x86_64'''
+  - 'when: ansible_cpu == ''intel'''
+  - 'when: ansible_arch == 64'
+  - 'when: x86_64'
+  correct: 'when: ansible_architecture == ''x86_64'''
+  explanation: '`ansible_architecture == ''x86_64''` checks the CPU architecture.'
+- type: true_false
+  question: '`ansible_processor_cores` reports the number of cores per physical processor.'
+  correct: true
+  explanation: '`ansible_processor_cores` reports cores per socket.'

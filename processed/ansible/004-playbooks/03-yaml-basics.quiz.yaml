@@ -1,0 +1,163 @@
+passing_score: 70
+questions:
+- type: mcq
+  question: How must indentation be formatted in YAML files?
+  options:
+  - With spaces only (tabs will cause syntax errors)
+  - With tab characters only
+  - Either tabs or spaces, as long as it is consistent
+  - YAML does not use indentation
+  correct: With spaces only (tabs will cause syntax errors)
+  explanation: YAML strictly forbids tab characters for indentation; spaces must always
+    be used.
+- type: mcq
+  question: What marker standardly indicates the start of a YAML document?
+  options:
+  - '---'
+  - ===
+  - '###'
+  - START
+  correct: '---'
+  explanation: Three dashes `---` denote the beginning of a YAML document.
+- type: true_false
+  question: In YAML dictionaries, the colon `:` after a key must immediately be followed
+    by a space.
+  correct: true
+  explanation: 'A colon followed by a space (`key: value`) is required for proper
+    key-value dictionary syntax in YAML.'
+- type: mcq
+  question: What character denotes a literal block scalar in YAML that preserves newlines
+    and trailing spaces?
+  options:
+  - '| (pipe)'
+  - '> (greater-than)'
+  - '& (ampersand)'
+  - '* (asterisk)'
+  correct: '| (pipe)'
+  explanation: The pipe `|` denotes a literal block scalar which preserves line breaks.
+- type: mcq
+  question: What character denotes a folded block scalar in YAML that folds newlines
+    into spaces?
+  options:
+  - '> (greater-than)'
+  - '| (pipe)'
+  - $ (dollar)
+  - '% (percent)'
+  correct: '> (greater-than)'
+  explanation: The greater-than `>` folds newlines into spaces, treating lines as
+    a single wrapped paragraph.
+- type: true_false
+  question: YAML is case-sensitive, meaning `Hosts:` and `hosts:` are treated as completely
+    different keys by Ansible.
+  correct: true
+  explanation: YAML and Ansible keywords are strictly case-sensitive.
+- type: mcq
+  question: How should boolean values be specified in dictionaries to ensure compatibility
+    with default yamllint rules?
+  options:
+  - Lowercase `true` or `false`
+  - All-caps `TRUE` or `FALSE`
+  - Yes / No only
+  - 1 / 0 integers only
+  correct: Lowercase `true` or `false`
+  explanation: Lowercase `true` and `false` are the standard recommended boolean representations
+    in modern YAML.
+- type: mcq
+  question: How are list members defined in YAML?
+  options:
+  - Lines at the same indentation level starting with a dash and a space `- `
+  - Enclosed in curly braces `{}`
+  - Comma-separated values surrounded by angle brackets `<>`
+  - Numbered with parenthesis `(1)`, `(2)`
+  correct: Lines at the same indentation level starting with a dash and a space `-
+    `
+  explanation: A dash followed by a space `- ` at equal indentation denotes an element
+    of a list/sequence.
+- type: true_false
+  question: Most string values in YAML require quotation marks to be valid.
+  correct: false
+  explanation: YAML does not require quotes around most string values unless the string
+    contains special characters like `:` or `{}`.
+- type: mcq
+  question: Besides YAML, what alternative data serialization format can technically
+    be used to write playbooks?
+  options:
+  - JSON
+  - XML
+  - TOML
+  - CSV
+  correct: JSON
+  explanation: YAML is a superset of JSON, meaning valid JSON is also valid YAML and
+    can be parsed by Ansible.
+- type: true_false
+  question: Comments in YAML start with a hash `#` symbol and extend to the end of
+    the line.
+  correct: true
+  explanation: '`#` introduces a comment in YAML.'
+- type: mcq
+  question: What happens if you use a tab character for indentation in an Ansible
+    playbook YAML file?
+  options:
+  - The parser raises a YAML syntax error (YAML does not allow tabs for indentation)
+  - Ansible automatically replaces tabs with 4 spaces
+  - Ansible ignores the line completely
+  - The playbook executes normally
+  correct: The parser raises a YAML syntax error (YAML does not allow tabs for indentation)
+  explanation: YAML parsers will fail immediately with a syntax error if tabs are
+    detected in indentation.
+- type: true_false
+  question: In YAML, two spaces is the standard recommended indentation level for
+    nested dictionaries and lists.
+  correct: true
+  explanation: Two spaces per indentation level is the universal Ansible and YAML
+    convention.
+- type: mcq
+  question: Which of the following represents a dictionary with two keys in YAML?
+  options:
+  - 'name: test
+
+    port: 80'
+  - '- name: test
+
+    - port: 80'
+  - (name=test, port=80)
+  - '[name: test, port: 80]'
+  correct: 'name: test
+
+    port: 80'
+  explanation: '`name: test` and `port: 80` at the same level form a key-value mapping
+    (dictionary).'
+- type: true_false
+  question: If a string in YAML begins with a template variable like `{{ app_name
+    }}`, the entire string must be enclosed in quotes.
+  correct: true
+  explanation: If a value starts with `{{`, YAML thinks it is an inline dictionary;
+    therefore, the value must be quoted (e.g. `"{{ app_name }}"`).
+- type: mcq
+  question: What marker denotes the optional end of a YAML document?
+  options:
+  - '...'
+  - '---'
+  - '###'
+  - END
+  correct: '...'
+  explanation: Three periods `...` denote the end of a document in multi-document
+    YAML files.
+- type: mcq
+  question: Which of the following is an inline representation of a YAML dictionary?
+  options:
+  - '{ name: ''nginx'', port: 80 }'
+  - '[ name: ''nginx'', port: 80 ]'
+  - '( name: ''nginx'', port: 80 )'
+  - < name='nginx' port='80' />
+  correct: '{ name: ''nginx'', port: 80 }'
+  explanation: Curly braces `{}` are valid YAML flow mapping (inline dictionary) syntax,
+    matching JSON object notation.
+- type: true_false
+  question: In YAML, numbers starting with leading zeroes (such as file modes like
+    `0644`) should be quoted as strings `"0644"` to prevent accidental octal integer
+    conversion bugs.
+  correct: true
+  explanation: Unquoted `0644` can be parsed as an octal integer in older YAML specs
+    or cause confusion; quoting it as `"0644"` preserves the exact string representation
+    expected by file modules.

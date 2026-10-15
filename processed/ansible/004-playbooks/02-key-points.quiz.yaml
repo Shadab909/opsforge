@@ -1,0 +1,170 @@
+passing_score: 70
+questions:
+- type: mcq
+  question: What is the structural hierarchy of an Ansible playbook?
+  options:
+  - Playbook contains one or more plays; each play contains tasks; each task calls
+    an Ansible module
+  - Modules contain tasks; tasks contain plays; plays contain playbooks
+  - Tasks contain plays; plays contain modules
+  - A playbook is a single module executed across all hosts
+  correct: Playbook contains one or more plays; each play contains tasks; each task
+    calls an Ansible module
+  explanation: 'The hierarchy flows: Playbook (ordered list of plays) -> Play (maps
+    hosts to tasks) -> Tasks (ordered steps) -> Module (the actual code executed).'
+- type: mcq
+  question: In what order are plays and tasks executed within a playbook by default?
+  options:
+  - Sequential order from top to bottom
+  - Parallel execution across all plays simultaneously
+  - Random order based on host response time
+  - Alphabetical order of task names
+  correct: Sequential order from top to bottom
+  explanation: Both plays in a playbook and tasks within a play execute sequentially
+    from top to bottom.
+- type: true_false
+  question: Within a single play, task 2 will begin executing on a host before task
+    1 has completed on that host.
+  correct: false
+  explanation: Tasks execute in strict sequence; each task completes across the targeted
+    batch of hosts before the next task begins.
+- type: mcq
+  question: What is the primary role of a 'Play' in an Ansible playbook?
+  options:
+  - To map a specific set of target hosts to a defined sequence of tasks
+  - To install Python on the local machine
+  - To compile YAML into C binaries
+  - To create an SSH keypair
+  correct: To map a specific set of target hosts to a defined sequence of tasks
+  explanation: 'A play''s core purpose is mapping a host group (e.g. `hosts: webservers`)
+    to the tasks that should run against them.'
+- type: mcq
+  question: What is the recommended modern practice when referencing Ansible modules
+    in tasks?
+  options:
+  - Use the Fully Qualified Collection Name (FQCN), such as `ansible.builtin.copy`
+  - Use short names only (e.g. `copy`)
+  - Always execute bash shell commands instead of modules
+  - Prefix all modules with `sudo.`
+  correct: Use the Fully Qualified Collection Name (FQCN), such as `ansible.builtin.copy`
+  explanation: Using FQCN prevents module naming collisions between core builtins
+    and community or custom collections.
+- type: true_false
+  question: A single playbook can configure database servers in the first play and
+    web servers in the second play.
+  correct: true
+  explanation: A playbook can contain multiple plays, allowing multi-machine, multi-tier
+    orchestration in a pre-defined sequence.
+- type: mcq
+  question: Which keywords are used in Ansible to launch long-running tasks asynchronously?
+  options:
+  - '`async` and `poll`'
+  - '`background` and `wait`'
+  - '`daemon: true`'
+  - '`thread: spawn`'
+  correct: '`async` and `poll`'
+  explanation: Ansible uses `async` (max run time) and `poll` (how often to check
+    status) for asynchronous task execution.
+- type: mcq
+  question: Which of the following infrastructure domains can Ansible playbooks automate?
+  options:
+  - Software packages, system users, network devices, and cloud infrastructure
+  - Only Linux packages via apt
+  - Only local shell scripts
+  - Only web servers running Nginx
+  correct: Software packages, system users, network devices, and cloud infrastructure
+  explanation: 'Ansible automates full-stack infrastructure: packages, users, services,
+    network gear, storage, and cloud providers.'
+- type: true_false
+  question: Playbooks can be parameterized with variables, allowing the same playbook
+    to configure development, staging, and production environments.
+  correct: true
+  explanation: By injecting environment-specific variables, a single playbook can
+    manage multiple deployment tiers.
+- type: mcq
+  question: What architectural unit is responsible for executing the actual action
+    on target nodes in a task?
+  options:
+  - The Ansible module (e.g. `ansible.builtin.user`)
+  - The inventory file
+  - The playbook header
+  - The YAML parser
+  correct: The Ansible module (e.g. `ansible.builtin.user`)
+  explanation: Modules are discrete units of code that Ansible ships to remote hosts
+    to perform work.
+- type: true_false
+  question: Zero-downtime rolling updates cannot be implemented with Ansible playbooks.
+  correct: false
+  explanation: 'Ansible natively supports rolling updates using directives like `serial:
+    1` or `serial: 20%`.'
+- type: mcq
+  question: What is the key mechanism for structuring reusable playbook automation
+    across multiple repositories?
+  options:
+  - Roles and collections
+  - Monolithic 50,000-line playbook files
+  - Cron jobs on controller
+  - Ad-hoc shell history
+  correct: Roles and collections
+  explanation: Ansible Roles and Collections provide modular, distributable packaging
+    for reusable tasks, vars, and handlers.
+- type: mcq
+  question: When a task calls an Ansible module, how is the task evaluated on the
+    remote host?
+  options:
+  - Ansible generates module code, transfers it over SSH, executes it, and retrieves
+    JSON output
+  - Ansible installs a permanent background agent that polls every second
+  - Ansible converts the module into an RPM package
+  - Ansible requires remote root login with telnet
+  correct: Ansible generates module code, transfers it over SSH, executes it, and
+    retrieves JSON output
+  explanation: Ansible packages module code, streams it via SSH/WinRM, executes with
+    target Python, and parses the JSON response.
+- type: true_false
+  question: Synchronous task execution is the default behavior in Ansible.
+  correct: true
+  explanation: Ansible runs tasks synchronously by default, waiting for each task
+    to complete before advancing.
+- type: mcq
+  question: Which of the following best describes an ordered list in YAML syntax?
+  options:
+  - A YAML Sequence (items preceded by a dash and space `- `)
+  - A YAML Mapping (key-value pairs separated by colon)
+  - A JSON Object
+  - An XML Element
+  correct: A YAML Sequence (items preceded by a dash and space `- `)
+  explanation: A sequence (list) in YAML begins each element with `- ` at the same
+    indentation level.
+- type: mcq
+  question: What happens if a play contains multiple tasks and task 3 fails on `hostA`
+    but succeeds on `hostB`?
+  options:
+  - '`hostA` is dropped from remaining tasks in that play; `hostB` continues to task
+    4'
+  - The entire playbook immediately aborts for all hosts
+  - Ansible ignores the failure and executes task 4 on `hostA` anyway
+  - '`hostA` is automatically rebooted'
+  correct: '`hostA` is dropped from remaining tasks in that play; `hostB` continues
+    to task 4'
+  explanation: Ansible tracks failures per host. By default, a failed host halts further
+    task execution in that play, while healthy hosts proceed.
+- type: true_false
+  question: A playbook must always contain at least one task to be syntactically valid
+    and runnable.
+  correct: true
+  explanation: A play without any tasks, roles, or import directives has nothing to
+    execute and will raise an error or warning.
+- type: mcq
+  question: Which of the following describes the relationship between Ansible Collections
+    and Modules?
+  options:
+  - Collections are packaging formats that group related modules, plugins, roles,
+    and playbooks into a single namespace
+  - Collections are only for Python package management via pip
+  - Modules contain Collections inside their source code
+  - Collections have replaced playbooks completely
+  correct: Collections are packaging formats that group related modules, plugins,
+    roles, and playbooks into a single namespace
+  explanation: Ansible Collections represent the distribution model for publishing
+    and consuming modules and roles (e.g. `community.general`, `ansible.builtin`).

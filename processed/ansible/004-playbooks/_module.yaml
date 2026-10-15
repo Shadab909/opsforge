@@ -1,0 +1,64 @@
+name: Ansible Playbooks
+slug: 004-playbooks
+description: Master writing, executing, and structuring Ansible playbooks, variables,
+  handlers, conditionals, and loops.
+display_order: 4
+total_chunks: 8
+total_questions: 176
+chunks:
+- slug: 01-what-are-playbooks
+  title: 01. What are Playbooks?
+  file: 01-what-are-playbooks.md
+  quiz_file: 01-what-are-playbooks.quiz.yaml
+  estimated_time: 5
+  question_count: 15
+  has_hands_on: false
+- slug: 02-key-points
+  title: 02. Key Architecture & Execution Points
+  file: 02-key-points.md
+  quiz_file: 02-key-points.quiz.yaml
+  estimated_time: 5
+  question_count: 18
+  has_hands_on: false
+- slug: 03-yaml-basics
+  title: 03. YAML Basics for Playbooks
+  file: 03-yaml-basics.md
+  quiz_file: 03-yaml-basics.quiz.yaml
+  estimated_time: 6
+  question_count: 18
+  has_hands_on: false
+- slug: 04-first-playbook
+  title: 04. Writing Your First Playbook
+  file: 04-first-playbook.md
+  quiz_file: 04-first-playbook.quiz.yaml
+  estimated_time: 6
+  question_count: 18
+  has_hands_on: false
+- slug: 05-execution-and-syntax
+  title: 05. Playbook Execution & Play Syntax
+  file: 05-execution-and-syntax.md
+  quiz_file: 05-execution-and-syntax.quiz.yaml
+  estimated_time: 7
+  question_count: 22
+  has_hands_on: false
+- slug: 06-variables
+  title: 06. Variables & Environment Configuration
+  file: 06-variables.md
+  quiz_file: 06-variables.quiz.yaml
+  estimated_time: 7
+  question_count: 30
+  has_hands_on: false
+- slug: 07-handlers-register-conditionals
+  title: 07. Handlers, Output Register & Conditionals
+  file: 07-handlers-register-conditionals.md
+  quiz_file: 07-handlers-register-conditionals.quiz.yaml
+  estimated_time: 8
+  question_count: 30
+  has_hands_on: false
+- slug: 08-loops-tags-best-practices
+  title: 08. Loops, Tags & Playbook Best Practices
+  file: 08-loops-tags-best-practices.md
+  quiz_file: 08-loops-tags-best-practices.quiz.yaml
+  estimated_time: 8
+  question_count: 25
+  has_hands_on: true

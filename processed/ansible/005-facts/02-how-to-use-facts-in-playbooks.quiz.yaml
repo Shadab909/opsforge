@@ -1,0 +1,174 @@
+passing_score: 70
+questions:
+- type: mcq
+  question: What is the recommended modern syntax for accessing the `distribution`
+    fact in an Ansible task?
+  options:
+  - '{{ ansible_facts[''distribution''] }}'
+  - '{{ facts.distribution }}'
+  - $(ansible_distribution)
+  - '@ansible_distribution'
+  correct: '{{ ansible_facts[''distribution''] }}'
+  explanation: Modern Ansible recommends using the scoped `ansible_facts['key']` syntax
+    to prevent namespace collisions.
+- type: mcq
+  question: How are facts formatted when using legacy top-level variable names?
+  options:
+  - They are prefixed with `ansible_` (e.g. `ansible_distribution`)
+  - They are suffixed with `_fact`
+  - They are capitalized (e.g. `UBUNTU_OS`)
+  - They begin with a dollar sign `$ansible`
+  correct: They are prefixed with `ansible_` (e.g. `ansible_distribution`)
+  explanation: Legacy fact variables inject into the play scope prefixed with `ansible_`
+    (e.g. `ansible_architecture`).
+- type: true_false
+  question: When using facts inside a `when:` conditional statement, you should wrap
+    the fact in double curly braces `{{ }}`.
+  correct: false
+  explanation: 'In `when:` clauses, variables must NOT be enclosed in `{{ }}`; they
+    are evaluated directly as raw Python/Jinja2 expressions (e.g. `when: ansible_distribution
+    == ''Ubuntu''`).'
+- type: mcq
+  question: Which conditional expression correctly runs a task only when the target
+    machine is running CentOS?
+  options:
+  - 'when: ansible_distribution == "CentOS"'
+  - 'when: {{ ansible_distribution == "CentOS" }}'
+  - 'if: ansible_distribution == "CentOS"'
+  - 'when: ansible_distribution is "CentOS"'
+  correct: 'when: ansible_distribution == "CentOS"'
+  explanation: Standard Jinja2 equality `==` without curly braces is the correct syntax
+    for `when:` directives.
+- type: mcq
+  question: 'Which package manager module is typically paired with `when: ansible_os_family
+    == ''Debian''`?'
+  options:
+  - ansible.builtin.apt
+  - ansible.builtin.dnf
+  - ansible.builtin.yum
+  - ansible.builtin.zypper
+  correct: ansible.builtin.apt
+  explanation: Debian-family distributions (Debian, Ubuntu, Mint) utilize `apt` for
+    package management.
+- type: mcq
+  question: 'Which package manager module is typically paired with `when: ansible_os_family
+    == ''RedHat''` on modern systems?'
+  options:
+  - ansible.builtin.dnf (or yum)
+  - ansible.builtin.apt
+  - ansible.builtin.pacman
+  - ansible.builtin.apk
+  correct: ansible.builtin.dnf (or yum)
+  explanation: RedHat-family distributions (RHEL, CentOS, Fedora, Rocky) utilize `dnf`
+    or `yum`.
+- type: mcq
+  question: How do you access the total physical memory in megabytes from the `ansible_memory_mb`
+    nested dictionary using dot notation?
+  options:
+  - ansible_memory_mb.real.total
+  - ansible_memory_mb->real->total
+  - ansible_memory_mb:real:total
+  - ansible_memory_mb.total
+  correct: ansible_memory_mb.real.total
+  explanation: The total physical memory is accessed via `ansible_memory_mb.real.total`.
+- type: mcq
+  question: Which conditional triggers a task only if the target machine has less
+    than 4000 MB of total RAM?
+  options:
+  - 'when: ansible_memory_mb.real.total < 4000'
+  - 'when: ansible_memory_mb.real.total lt 4000'
+  - 'when: {{ ansible_memory_mb.real.total < 4000 }}'
+  - 'when: memory < 4000MB'
+  correct: 'when: ansible_memory_mb.real.total < 4000'
+  explanation: Numerical comparison operators (`<`, `>`, `<=`, `>=`) evaluate integer
+    values directly in `when:` statements.
+- type: true_false
+  question: Both dot notation (`ansible_memory_mb.real.total`) and bracket notation
+    (`ansible_memory_mb['real']['total']`) are valid in Ansible.
+  correct: true
+  explanation: Ansible's Jinja2 engine supports both dot and bracket syntax for traversing
+    dictionaries.
+- type: mcq
+  question: Why is bracket notation (`ansible_facts['default_ipv4']['address']`) sometimes
+    preferred over dot notation?
+  options:
+  - Bracket notation safely handles keys containing hyphens, spaces, or Python reserved
+    keyword names
+  - Bracket notation executes 10 times faster
+  - Dot notation is deprecated in Ansible 2.0
+  - Dot notation only works on Windows
+  correct: Bracket notation safely handles keys containing hyphens, spaces, or Python
+    reserved keyword names
+  explanation: When dictionary keys contain special characters (like hyphens or dots)
+    or collide with Python methods, bracket notation avoids syntax errors.
+- type: true_false
+  question: If you query an undefined fact in a `when:` conditional without checking
+    if it is defined, Ansible will raise an 'undefined variable' error by default.
+  correct: true
+  explanation: Ansible enforces strict variable evaluation, failing the task if an
+    undefined fact is referenced without `| default` or `is defined`.
+- type: mcq
+  question: What is the primary operational advantage of using facts in playbooks
+    instead of writing separate playbooks for each OS?
+  options:
+  - A single playbook can dynamically manage heterogeneous environments (Ubuntu, CentOS,
+    Debian) with conditional logic
+  - It eliminates the need for an inventory file
+  - It removes the need to use SSH keys
+  - It compiles the playbook into machine bytecode
+  correct: A single playbook can dynamically manage heterogeneous environments (Ubuntu,
+    CentOS, Debian) with conditional logic
+  explanation: Facts allow multi-platform playbooks to adapt dynamically to whichever
+    distribution is running on the target node.
+- type: true_false
+  question: You can combine multiple fact conditions in a single `when:` statement
+    using `and` and `or` logical operators.
+  correct: true
+  explanation: 'Standard boolean operators (`and`, `or`, `not`) allow complex composite
+    conditions (e.g. `when: ansible_os_family == ''Debian'' and ansible_memory_mb.real.total
+    >= 2048`).'
+- type: mcq
+  question: "In the task snippet below, what happens if the target machine is running\
+    \ Rocky Linux?\n\n- name: Install web service\n  apt:\n    name: nginx\n    state:\
+    \ present\n  when: ansible_distribution == 'Ubuntu'"
+  options:
+  - The task is skipped (`skipped=1`)
+  - The task fails with a fatal error
+  - The task installs nginx using dnf
+  - Ansible reboots the machine
+  correct: The task is skipped (`skipped=1`)
+  explanation: Because `ansible_distribution == 'Ubuntu'` evaluates to false on Rocky
+    Linux, Ansible skips the task without failure.
+- type: mcq
+  question: How can you check if a target machine has an active default IPv4 gateway
+    configured?
+  options:
+  - 'when: ansible_default_ipv4.gateway is defined'
+  - 'when: default_gateway == true'
+  - 'when: ping(gateway) == 0'
+  - 'when: has_gateway()'
+  correct: 'when: ansible_default_ipv4.gateway is defined'
+  explanation: The Jinja2 test `is defined` verifies whether the `gateway` property
+    was discovered.
+- type: true_false
+  question: Fact variables can be used inside Jinja2 template files (`.j2`) deployed
+    with the `ansible.builtin.template` module.
+  correct: true
+  explanation: All discovered facts are available inside templates, making it easy
+    to populate configuration files with dynamic host IPs, hostnames, and memory limits.
+- type: mcq
+  question: Which fact would you reference to configure an Nginx virtual host with
+    the machine's primary IP address?
+  options:
+  - '{{ ansible_default_ipv4.address }}'
+  - '{{ ansible_ip }}'
+  - '{{ host.primary_ip }}'
+  - '{{ ip_address }}'
+  correct: '{{ ansible_default_ipv4.address }}'
+  explanation: '`ansible_default_ipv4.address` contains the IP address of the primary
+    network interface.'
+- type: true_false
+  question: 'A task with `when: ansible_distribution in [''Ubuntu'', ''Debian'']`
+    is valid Jinja2 syntax in Ansible.'
+  correct: true
+  explanation: The `in` operator checks for membership in a list of distributions.

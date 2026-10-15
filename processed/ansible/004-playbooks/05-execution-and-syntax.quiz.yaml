@@ -1,0 +1,215 @@
+passing_score: 70
+questions:
+- type: mcq
+  question: Which flag performs a dry-run (check mode) of a playbook without making
+    actual changes to target hosts?
+  options:
+  - --check
+  - --dry
+  - --test
+  - --verify
+  correct: --check
+  explanation: '`ansible-playbook playbook.yaml --check` runs the playbook in check
+    mode (dry run).'
+- type: mcq
+  question: Which command-line option limits playbook execution to a specific host
+    or group in your inventory?
+  options:
+  - --limit (or -l)
+  - --only
+  - --target
+  - --filter
+  correct: --limit (or -l)
+  explanation: '`--limit <pattern>` restricts execution to matching hosts without
+    modifying the inventory.'
+- type: mcq
+  question: Which flag displays file-level differences (before and after) when configuration
+    templates or files change?
+  options:
+  - --diff
+  - --compare
+  - --delta
+  - --show-changes
+  correct: --diff
+  explanation: '`--diff` displays unified diffs of changes made to files on remote
+    systems.'
+- type: true_false
+  question: You can safely combine `--check` and `--diff` together to preview exact
+    configuration changes without modifying anything.
+  correct: true
+  explanation: '`ansible-playbook playbook.yaml --check --diff` is the standard pre-flight
+    audit combination in production.'
+- type: mcq
+  question: How do you specify a custom inventory file when running `ansible-playbook`?
+  options:
+  - -i <inventory_path>
+  - -f <inventory_path>
+  - --inventory-file
+  - --hosts-path
+  correct: -i <inventory_path>
+  explanation: The `-i` or `--inventory` flag specifies the path to an inventory file
+    or directory.
+- type: mcq
+  question: In the Ansible execution recap, what does `ok=2` mean?
+  options:
+  - Two tasks ran successfully without needing to make changes to the system
+  - Two hosts failed to respond
+  - Two tasks modified the system state
+  - Two tasks were skipped
+  correct: Two tasks ran successfully without needing to make changes to the system
+  explanation: '`ok` indicates tasks that verified the system was already in the desired
+    state.'
+- type: mcq
+  question: In the Ansible execution recap, what does `changed=1` mean?
+  options:
+  - One or more tasks applied modifications to bring the host to the desired state
+  - One playbook file was modified
+  - One task failed
+  - One host was rebooted
+  correct: One or more tasks applied modifications to bring the host to the desired
+    state
+  explanation: '`changed` means the system''s state was altered by Ansible.'
+- type: mcq
+  question: In the Ansible execution recap, what does `unreachable=1` signify?
+  options:
+  - Ansible failed to establish a network/SSH connection to that host
+  - The task timed out after execution
+  - The module was missing on the remote host
+  - Privilege escalation was denied
+  correct: Ansible failed to establish a network/SSH connection to that host
+  explanation: '`unreachable` indicates an SSH, authentication, or network connectivity
+    failure.'
+- type: mcq
+  question: In the Ansible execution recap, what does `skipped=1` indicate?
+  options:
+  - A task was bypassed because its `when:` conditional evaluated to false
+  - The task had a syntax error
+  - The host was unreachable
+  - The user canceled the task interactively
+  correct: A task was bypassed because its `when:` conditional evaluated to false
+  explanation: Tasks are skipped when conditional expressions evaluate to false.
+- type: mcq
+  question: Which verbosity flag level shows connection debugging and SSH client command
+    details?
+  options:
+  - -vvv
+  - -v
+  - -s
+  - --quiet
+  correct: -vvv
+  explanation: Level `-vvv` enables connection and file transfer debugging.
+- type: mcq
+  question: Which directive in a play enables privilege escalation (sudo)?
+  options:
+  - 'become: yes'
+  - 'sudo: true'
+  - 'privilege: root'
+  - 'admin: enable'
+  correct: 'become: yes'
+  explanation: '`become: yes` instructs Ansible to use become plugins (such as sudo)
+    for privilege escalation.'
+- type: mcq
+  question: Which directive specifies the target user for privilege escalation (e.g.
+    becoming `postgres`)?
+  options:
+  - 'become_user: postgres'
+  - 'as_user: postgres'
+  - 'target_user: postgres'
+  - 'user_switch: postgres'
+  correct: 'become_user: postgres'
+  explanation: '`become_user` sets the target account to switch to after privilege
+    escalation.'
+- type: true_false
+  question: The `environment:` keyword in a play or task sets environment variables
+    for the execution of modules.
+  correct: true
+  explanation: The `environment:` dictionary injects environment variables into the
+    process executing the module.
+- type: mcq
+  question: Why is the `environment:` keyword NOT recommended for passing confidential
+    passwords or API keys?
+  options:
+  - Environment variables may appear in system logs and process tables (`ps aux`)
+    on target machines
+  - Ansible blocks environment variables from reaching modules
+  - Environment variables crash the Python interpreter
+  - The keyword is deprecated
+  correct: Environment variables may appear in system logs and process tables (`ps
+    aux`) on target machines
+  explanation: Process environment variables can be visible in `/proc/<pid>/environ`
+    and system monitoring logs.
+- type: true_false
+  question: A play can define local play-level variables directly using the `vars:`
+    directive.
+  correct: true
+  explanation: The `vars:` block at the play level defines variables scoped to that
+    play.
+- type: mcq
+  question: What is the maximum verbosity level flag supported by Ansible CLI for
+    full connection plugin tracing?
+  options:
+  - -vvvv (or -vvvvv in modern versions)
+  - -v
+  - -v10
+  - --max-debug
+  correct: -vvvv (or -vvvvv in modern versions)
+  explanation: Four or five `-v` flags enable deep connection tracing, including SSH
+    connection commands.
+- type: true_false
+  question: Running `ansible-playbook` without `-i` will cause Ansible to fall back
+    to the default inventory at `/etc/ansible/hosts`.
+  correct: true
+  explanation: If no inventory is provided and none is configured in `ansible.cfg`,
+    Ansible falls back to `/etc/ansible/hosts`.
+- type: mcq
+  question: What does `failed=1` in the play recap mean?
+  options:
+  - One or more tasks failed on that host, causing Ansible to halt further execution
+    on it
+  - The inventory was missing that host
+  - The playbook had a YAML syntax error
+  - One file was deleted
+  correct: One or more tasks failed on that host, causing Ansible to halt further
+    execution on it
+  explanation: 'A failure halts the host''s execution unless `ignore_errors: yes`
+    was declared.'
+- type: true_false
+  question: The `--syntax-check` flag validates the YAML and structural syntax of
+    a playbook without contacting any hosts.
+  correct: true
+  explanation: '`ansible-playbook playbook.yaml --syntax-check` quickly validates
+    syntax offline.'
+- type: mcq
+  question: What does `TASK [Gathering Facts]` do automatically at the start of a
+    play?
+  options:
+  - It runs the `setup` module to gather system facts (OS, IP, CPU, memory) from the
+    target hosts
+  - It downloads packages from the internet
+  - It checks if Git is installed
+  - It creates user accounts
+  correct: It runs the `setup` module to gather system facts (OS, IP, CPU, memory)
+    from the target hosts
+  explanation: Fact gathering is enabled by default and queries system attributes
+    into `ansible_*` variables.
+- type: mcq
+  question: Which flag prompts the user for the SSH password when connecting to remote
+    hosts?
+  options:
+  - --ask-pass (or -k)
+  - --password
+  - --ssh-key
+  - -P
+  correct: --ask-pass (or -k)
+  explanation: The `-k` or `--ask-pass` flag triggers an interactive password prompt
+    for SSH connections.
+- type: mcq
+  question: Which flag prompts the user interactively for the privilege escalation
+    (sudo) password?
+  options:
+  - --ask-become-pass (or -K)
+  - --sudo-password
+  - --root-prompt
+  - -S
+  correct: --ask-become-pass (or -K)
+  explanation: The `-K` or `--ask-become-pass` flag prompts for the sudo/become password.

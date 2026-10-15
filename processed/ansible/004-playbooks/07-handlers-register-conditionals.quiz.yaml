@@ -1,0 +1,289 @@
+passing_score: 70
+questions:
+- type: mcq
+  question: When do Ansible handlers execute by default during a play?
+  options:
+  - At the very end of the play, after all regular tasks have executed
+  - Immediately when the notifying task finishes
+  - Before any regular tasks execute
+  - In a background daemon thread
+  correct: At the very end of the play, after all regular tasks have executed
+  explanation: Handlers run once at the end of the play after all tasks succeed, ensuring
+    batch operations like service restarts happen cleanly.
+- type: mcq
+  question: In what order do multiple handlers execute when notified?
+  options:
+  - In the order they are defined in the `handlers:` section, NOT the order they were
+    notified
+  - In the exact order tasks notified them
+  - In reverse order of notification
+  - In alphabetical order of handler names
+  correct: In the order they are defined in the `handlers:` section, NOT the order
+    they were notified
+  explanation: Handlers strictly run in the order defined within the `handlers:` section
+    of the play.
+- type: true_false
+  question: If a task reports status `ok` (no changes made), any handlers notified
+    by that task will NOT be triggered.
+  correct: true
+  explanation: Handlers are only notified when the notifying task reports a status
+    of `changed`.
+- type: mcq
+  question: If three separate tasks notify the same handler `restart nginx` in a single
+    play, how many times will the handler run?
+  options:
+  - Only 1 time
+  - 3 times
+  - 0 times
+  - Once per task
+  correct: Only 1 time
+  explanation: Ansible automatically de-duplicates handlers by name so they run only
+    once per play.
+- type: mcq
+  question: Which keyword in a task is used to trigger a handler?
+  options:
+  - 'notify:'
+  - 'trigger:'
+  - 'handler:'
+  - 'call:'
+  correct: 'notify:'
+  explanation: The `notify:` keyword points to the name of a handler defined in the
+    `handlers:` section.
+- type: mcq
+  question: How can you force all pending notified handlers to execute immediately
+    in the middle of a play?
+  options:
+  - 'Using the meta task: `ansible.builtin.meta: flush_handlers`'
+  - 'Calling `ansible.builtin.handler: run`'
+  - Using `--force-handlers` on the command line
+  - Handlers cannot be forced before the end
+  correct: 'Using the meta task: `ansible.builtin.meta: flush_handlers`'
+  explanation: '`meta: flush_handlers` flushes and executes all queued handlers at
+    that point in the playbook.'
+- type: true_false
+  question: If a play encounters a task failure and stops, pending notified handlers
+    will be skipped by default.
+  correct: true
+  explanation: By default, pending handlers do not run if a previous task fails, unless
+    `--force-handlers` is supplied.
+- type: mcq
+  question: Which keyword controls conditional execution of a task in Ansible?
+  options:
+  - 'when:'
+  - 'if:'
+  - 'condition:'
+  - 'check:'
+  correct: 'when:'
+  explanation: The `when:` directive evaluates expressions to determine whether a
+    task runs or is skipped.
+- type: true_false
+  question: Inside a `when:` condition statement, variable names must always be enclosed
+    in `{{ }}` braces.
+  correct: false
+  explanation: 'In `when:` clauses, variables are evaluated directly as raw Python/Jinja
+    expressions WITHOUT `{{ }}` (e.g. `when: result.rc == 0`).'
+- type: mcq
+  question: How do you specify multiple conditions that must ALL be true (logical
+    AND) in a `when:` statement?
+  options:
+  - 'Provide a list of conditions: `when: [cond1, cond2]` or use `when: cond1 and
+    cond2`'
+  - Separate conditions with semicolons
+  - 'Provide a comma-separated string `when: "cond1, cond2"`'
+  - Ansible only allows one condition per task
+  correct: 'Provide a list of conditions: `when: [cond1, cond2]` or use `when: cond1
+    and cond2`'
+  explanation: Supplying a list under `when:` or using the `and` operator requires
+    all conditions to be satisfied.
+- type: mcq
+  question: How do you express a logical OR condition in a `when:` statement?
+  options:
+  - '`when: ansible_os_family == ''Debian'' or ansible_os_family == ''RedHat''`'
+  - '`when: [Debian || RedHat]`'
+  - '`when: either(Debian, RedHat)`'
+  - '`when.or: [Debian, RedHat]`'
+  correct: '`when: ansible_os_family == ''Debian'' or ansible_os_family == ''RedHat''`'
+  explanation: The standard Python `or` operator handles logical OR evaluations in
+    `when:` statements.
+- type: mcq
+  question: Which module should you use to check whether a file exists on a target
+    machine before deciding to run a task?
+  options:
+  - ansible.builtin.stat
+  - ansible.builtin.file
+  - ansible.builtin.exists
+  - ansible.builtin.check
+  correct: ansible.builtin.stat
+  explanation: '`ansible.builtin.stat` retrieves file attributes and populates `.stat.exists`.'
+- type: mcq
+  question: If you register the result of `ansible.builtin.stat` into `file_info`,
+    what conditional checks if the file exists?
+  options:
+  - 'when: file_info.stat.exists'
+  - 'when: file_info.exists == true'
+  - 'when: {{ file_info.stat.exists }}'
+  - 'when: file_info.found'
+  correct: 'when: file_info.stat.exists'
+  explanation: The boolean attribute is found at `file_info.stat.exists`.
+- type: mcq
+  question: What is the purpose of the `failed_when:` directive?
+  options:
+  - To override Ansible's default failure criteria with a custom conditional expression
+  - To reboot the system whenever a task fails
+  - To automatically retry a failed task 10 times
+  - To send an email when an error occurs
+  correct: To override Ansible's default failure criteria with a custom conditional
+    expression
+  explanation: '`failed_when:` allows defining custom failure criteria (e.g. `failed_when:
+    "''ERROR'' in result.stderr"`).'
+- type: mcq
+  question: What is the purpose of the `changed_when:` directive?
+  options:
+  - To control whether a task reports a 'changed' status based on a conditional expression
+  - To alter the system time
+  - To change the target user dynamically
+  - To re-run the task if changes occurred
+  correct: To control whether a task reports a 'changed' status based on a conditional
+    expression
+  explanation: '`changed_when:` customizes whether a task reports `changed=1`, which
+    in turn controls handler notifications.'
+- type: true_false
+  question: 'Setting `changed_when: false` ensures a task will always report `ok`
+    and will NEVER trigger any notified handlers.'
+  correct: true
+  explanation: 'Setting `changed_when: false` prevents read-only queries or status
+    checks from reporting changes or firing handlers.'
+- type: mcq
+  question: Which attribute in a registered variable contains error output generated
+    on standard error?
+  options:
+  - .stderr
+  - .error
+  - .stdout_error
+  - .err
+  correct: .stderr
+  explanation: Standard error output is captured in the `.stderr` attribute.
+- type: true_false
+  question: A handler can notify another handler.
+  correct: true
+  explanation: Handlers can include `notify:` directives to trigger subsequent handlers.
+- type: mcq
+  question: If you want a task to continue running even if it encounters an error,
+    which directive should you add to the task?
+  options:
+  - 'ignore_errors: yes'
+  - 'continue_on_fail: true'
+  - 'skip_failure: yes'
+  - 'retry: always'
+  correct: 'ignore_errors: yes'
+  explanation: '`ignore_errors: yes` allows subsequent tasks in the play to continue
+    executing despite task failure.'
+- type: mcq
+  question: 'In a condition like `when: my_var is defined`, what is `is defined`?'
+  options:
+  - A Jinja2 test that evaluates whether the variable exists
+  - A Python module call
+  - An Ansible command-line flag
+  - A YAML syntax keyword
+  correct: A Jinja2 test that evaluates whether the variable exists
+  explanation: '`is defined` and `is not defined` are standard Jinja2 tests for checking
+    variable presence.'
+- type: mcq
+  question: What is the purpose of the `listen:` keyword in an Ansible handler?
+  options:
+  - It binds the handler to an event/topic name, allowing multiple handlers to fire
+    when that topic is notified
+  - It monitors an audio stream on the server
+  - It listens on a TCP socket for inbound HTTP requests
+  - It runs the handler in an infinite listening loop
+  correct: It binds the handler to an event/topic name, allowing multiple handlers
+    to fire when that topic is notified
+  explanation: 'The `listen` directive groups multiple handlers under an event name
+    (e.g. `listen: system updated`), decoupling tasks from specific handler names.'
+- type: true_false
+  question: Can handlers have `when:` conditional statements applied directly to them?
+  correct: true
+  explanation: 'Handlers support `when:` conditionals (e.g. `when: enable_ssl`); if
+    the condition is false, the handler is skipped.'
+- type: mcq
+  question: Where are handlers organized when creating structured Ansible Roles?
+  options:
+  - In `roles/<role_name>/handlers/main.yml`
+  - In `roles/<role_name>/tasks/handlers.yml`
+  - In `roles/<role_name>/vars/handlers.yml`
+  - In `roles/<role_name>/templates/main.yml`
+  correct: In `roles/<role_name>/handlers/main.yml`
+  explanation: Standard role directory structure places handlers in `handlers/main.yml`.
+- type: mcq
+  question: 'In production service management, why is `state: reloaded` preferred
+    over `state: restarted` when updating configuration files like `nginx.conf`?'
+  options:
+  - '`reloaded` applies new configuration gracefully without dropping active client
+    connections'
+  - '`reloaded` is the only state supported on Linux'
+  - '`restarted` deletes the application logs'
+  - '`reloaded` runs without root permissions'
+  correct: '`reloaded` applies new configuration gracefully without dropping active
+    client connections'
+  explanation: A reload instructs the daemon to re-read configuration files while
+    maintaining worker processes for existing connections.
+- type: mcq
+  question: How can a handler validate a configuration file (like `nginx -t`) before
+    restarting the service?
+  options:
+  - By grouping validation and restart tasks inside a `block:` in the handler
+  - By adding `--validate` to the service module
+  - By running a cron job before the play
+  - Ansible automatically validates all config files
+  correct: By grouping validation and restart tasks inside a `block:` in the handler
+  explanation: Using a `block:` in a handler executes the validation task first; if
+    validation fails, the restart is aborted, protecting the live service.
+- type: true_false
+  question: Handlers should be used for critical tasks that must run every time a
+    playbook executes.
+  correct: false
+  explanation: Handlers only run when a task reports `changed`. Critical tasks that
+    must always execute belong in the main `tasks:` section.
+- type: mcq
+  question: In the PostgreSQL example from the reading, why does the `pg_hba.conf`
+    template task notify `reload postgresql` instead of `restart postgresql`?
+  options:
+  - Client authentication changes in `pg_hba.conf` can take effect with a reload,
+    avoiding disruptive database restarts
+  - PostgreSQL does not support restarting via Ansible
+  - '`pg_hba.conf` requires a complete operating system reboot'
+  - The `service` module cannot restart PostgreSQL
+  correct: Client authentication changes in `pg_hba.conf` can take effect with a reload,
+    avoiding disruptive database restarts
+  explanation: '`pg_hba.conf` rules can be reloaded on the fly without interrupting
+    active database connections.'
+- type: mcq
+  question: In the PostgreSQL handler verification task, which parameters are used
+    to retry checking database connectivity?
+  options:
+  - '`retries: 3` and `delay: 5`'
+  - '`loop: 3` and `sleep: 5`'
+  - '`attempt: 3` and `wait: 5`'
+  - '`timeout: 15`'
+  correct: '`retries: 3` and `delay: 5`'
+  explanation: '`retries: 3` and `delay: 5` instruct Ansible to retry the verification
+    check up to 3 times with a 5-second pause between attempts.'
+- type: mcq
+  question: 'What is the result of setting `failed_when: false` on a task running
+    `systemctl status nginx`?'
+  options:
+  - The task will never report failure, even if systemctl returns a non-zero exit
+    code (e.g. service stopped)
+  - Ansible ignores all YAML syntax errors in the playbook
+  - The task runs twice as fast
+  - The task will never run
+  correct: The task will never report failure, even if systemctl returns a non-zero
+    exit code (e.g. service stopped)
+  explanation: 'By disabling failure evaluation (`failed_when: false`), Ansible allows
+    capturing non-zero exit status without halting the playbook.'
+- type: true_false
+  question: A single task can notify multiple handlers by providing a YAML list of
+    handler names under `notify:`.
+  correct: true
+  explanation: 'A task can specify a list under `notify:` (e.g. `notify: [restart
+    app, clear cache, send notification]`).'

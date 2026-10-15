@@ -1,0 +1,148 @@
+passing_score: 70
+questions:
+- type: mcq
+  question: What are Ansible facts?
+  options:
+  - Dynamic system information automatically discovered from remote target nodes at
+    runtime
+  - Hardcoded configuration parameters inside ansible.cfg
+  - License keys required to execute playbooks
+  - Static comments written inside YAML files
+  correct: Dynamic system information automatically discovered from remote target
+    nodes at runtime
+  explanation: Ansible facts are data points representing the remote target nodes
+    (OS, IP, memory, disks, CPU) discovered dynamically at runtime.
+- type: mcq
+  question: Which core Ansible module is responsible for discovering and gathering
+    facts from remote nodes?
+  options:
+  - ansible.builtin.setup
+  - ansible.builtin.facts
+  - ansible.builtin.discover
+  - ansible.builtin.system_info
+  correct: ansible.builtin.setup
+  explanation: The `setup` module is the dedicated builtin module that inspects target
+    machines and returns fact data.
+- type: mcq
+  question: Which ad-hoc command gathers and displays all facts from all inventory
+    hosts?
+  options:
+  - ansible all -m setup
+  - ansible all -a 'facts'
+  - ansible-playbook --facts all
+  - ansible-setup all
+  correct: ansible all -m setup
+  explanation: Executing `ansible all -m setup` invokes the setup module across all
+    target hosts in the inventory.
+- type: true_false
+  question: Ansible facts are gathered by target nodes and sent back to the controller
+    node.
+  correct: true
+  explanation: Fact gathering executes on the managed nodes and the resulting system
+    profile is returned as JSON to the control machine.
+- type: mcq
+  question: What is the top-level JSON key containing all discovered system facts
+    in Ansible output?
+  options:
+  - ansible_facts
+  - host_data
+  - system_specs
+  - remote_info
+  correct: ansible_facts
+  explanation: All discovered attributes are nested under the primary `ansible_facts`
+    dictionary.
+- type: mcq
+  question: Which CLI flag allows exporting gathered facts from all hosts into individual
+    JSON files inside a local directory?
+  options:
+  - --tree <directory>
+  - --export <directory>
+  - --save-facts <directory>
+  - --output-dir <directory>
+  correct: --tree <directory>
+  explanation: The `--tree /path/to/dir` option instructs Ansible to save the JSON
+    output for each host in a separate file named by hostname.
+- type: true_false
+  question: Ansible requires installing a permanent background agent daemon on remote
+    hosts to query facts.
+  correct: false
+  explanation: Ansible is agentless; it uses SSH/WinRM and temporary Python execution
+    to query system information.
+- type: mcq
+  question: How do you view facts for a single host named `linux-server-1` without
+    modifying your inventory file?
+  options:
+  - ansible linux-server-1 -m setup
+  - ansible all -m setup --host linux-server-1
+  - ansible-facts linux-server-1
+  - ansible setup linux-server-1
+  correct: ansible linux-server-1 -m setup
+  explanation: Supplying the specific hostname as the pattern argument targets only
+    that machine.
+- type: mcq
+  question: What task automatically runs by default at the start of every Ansible
+    play unless explicitly disabled?
+  options:
+  - TASK [Gathering Facts]
+  - TASK [Checking SSH]
+  - TASK [Validating Python]
+  - TASK [Syncing Time]
+  correct: TASK [Gathering Facts]
+  explanation: At the start of each play, Ansible initiates `TASK [Gathering Facts]`
+    to discover system properties before other tasks execute.
+- type: mcq
+  question: Which module and argument would you use in a playbook task to print the
+    entire gathered facts dictionary?
+  options:
+  - 'ansible.builtin.debug with `var: ansible_facts`'
+  - ansible.builtin.command with `print facts`
+  - ansible.builtin.shell with `echo $FACTS`
+  - 'ansible.builtin.setup with `display: true`'
+  correct: 'ansible.builtin.debug with `var: ansible_facts`'
+  explanation: '`debug: var: ansible_facts` prints the full data structure of all
+    discovered facts.'
+- type: true_false
+  question: Ansible facts can only be collected from Linux systems, not from Windows
+    or macOS nodes.
+  correct: false
+  explanation: Ansible discovers facts across Linux, macOS, BSD, and Windows machines
+    (via PowerShell and WinRM).
+- type: mcq
+  question: When facts are collected by the controller, where can they be referenced?
+  options:
+  - Across all subsequent tasks, handlers, conditionals, and Jinja2 templates in that
+    play
+  - Only inside the inventory file
+  - Only in shell scripts on the controller
+  - Only inside `ansible.cfg`
+  correct: Across all subsequent tasks, handlers, conditionals, and Jinja2 templates
+    in that play
+  explanation: Gathered facts populate variables that are immediately available for
+    template rendering and task conditionals.
+- type: mcq
+  question: In the JSON output of the setup module, what data type is `ansible_facts`?
+  options:
+  - A JSON Object (dictionary)
+  - A JSON Array (list)
+  - A String
+  - An Integer
+  correct: A JSON Object (dictionary)
+  explanation: '`ansible_facts` is a hierarchical dictionary mapping fact names to
+    values and nested dictionaries.'
+- type: true_false
+  question: Files created by `ansible all -m setup --tree /tmp/facts` are named after
+    each target host's inventory name.
+  correct: true
+  explanation: The `--tree` argument indexes output files using each machine's inventory
+    hostname.
+- type: mcq
+  question: Which command would you use to verify that the setup module is available
+    and responsive on localhost?
+  options:
+  - ansible localhost -m setup
+  - ansible-playbook setup.yml
+  - setup --test
+  - ansible --check-facts
+  correct: ansible localhost -m setup
+  explanation: Running `ansible localhost -m setup` queries facts locally on the controller
+    node.

@@ -1,0 +1,245 @@
+passing_score: 70
+questions:
+- type: mcq
+  question: What is the standard, modern keyword used to iterate over items in Ansible
+    tasks?
+  options:
+  - 'loop:'
+  - 'with_items:'
+  - 'for_each:'
+  - 'iterate:'
+  correct: 'loop:'
+  explanation: '`loop:` is the modern, recommended syntax in Ansible for iterating
+    over lists.'
+- type: mcq
+  question: What default variable holds the current item during loop execution in
+    a task?
+  options:
+  - '{{ item }}'
+  - '{{ element }}'
+  - '{{ value }}'
+  - '{{ self }}'
+  correct: '{{ item }}'
+  explanation: Ansible exposes the current iteration element as `item`.
+- type: mcq
+  question: 'How do you access properties when looping over a list of dictionaries
+    (e.g. `[{name: ''alice'', role: ''admin''}]`)?'
+  options:
+  - '{{ item.name }} and {{ item.role }}'
+  - '{{ item[0] }}'
+  - '{{ item->name }}'
+  - '{{ this.name }}'
+  correct: '{{ item.name }} and {{ item.role }}'
+  explanation: Properties of dictionary items in a loop are accessed via dot notation
+    `{{ item.name }}`.
+- type: mcq
+  question: Which directive allows you to rename the loop variable from `item` to
+    something more descriptive (e.g. `user_account`)?
+  options:
+  - 'loop_control: { loop_var: user_account }'
+  - 'rename_item: user_account'
+  - 'var_name: user_account'
+  - 'as: user_account'
+  correct: 'loop_control: { loop_var: user_account }'
+  explanation: '`loop_control: loop_var` renames the iteration variable, essential
+    when nesting loops.'
+- type: mcq
+  question: How do you run only tasks tagged with `deploy` when executing a playbook
+    from the terminal?
+  options:
+  - ansible-playbook playbook.yaml --tags deploy
+  - ansible-playbook playbook.yaml --only deploy
+  - ansible-playbook playbook.yaml -t:deploy
+  - ansible-playbook playbook.yaml --filter deploy
+  correct: ansible-playbook playbook.yaml --tags deploy
+  explanation: The `--tags` (or `-t`) flag filters execution to tasks matching the
+    specified tag(s).
+- type: mcq
+  question: How do you skip tasks tagged with `backup` during playbook execution?
+  options:
+  - ansible-playbook playbook.yaml --skip-tags backup
+  - ansible-playbook playbook.yaml --exclude backup
+  - ansible-playbook playbook.yaml --ignore-tags backup
+  - ansible-playbook playbook.yaml --without backup
+  correct: ansible-playbook playbook.yaml --skip-tags backup
+  explanation: The `--skip-tags` flag bypasses all tasks tagged with the given label.
+- type: mcq
+  question: What is the special behavior of the reserved tag `always` in Ansible?
+  options:
+  - Tasks tagged with `always` run by default unless explicitly skipped with `--skip-tags
+    always`
+  - The task runs in an infinite loop
+  - The task runs on every computer in the world
+  - The task cannot fail
+  correct: Tasks tagged with `always` run by default unless explicitly skipped with
+    `--skip-tags always`
+  explanation: The `always` tag ensures a task executes even when `--tags` is specified,
+    unless `--skip-tags always` is passed.
+- type: mcq
+  question: What is the special behavior of the reserved tag `never` in Ansible?
+  options:
+  - Tasks tagged with `never` are skipped by default unless explicitly requested with
+    `--tags never`
+  - The task is permanently deleted from the YAML file
+  - The task never reports changed
+  - The task will never fail
+  correct: Tasks tagged with `never` are skipped by default unless explicitly requested
+    with `--tags never`
+  explanation: The `never` tag acts as a feature flag for optional, on-demand tasks.
+- type: true_false
+  question: It is an Ansible best practice to use dedicated modules (`apt`, `service`,
+    `copy`) rather than generic `command` or `shell` modules whenever possible.
+  correct: true
+  explanation: Dedicated modules enforce idempotency, input validation, and proper
+    return structures, whereas raw shell scripts do not.
+- type: mcq
+  question: Why is it best practice to provide a clear, descriptive `name:` for every
+    task?
+  options:
+  - It documents the task's purpose in the playbook and clearly identifies what step
+    is executing in the terminal logs
+  - Ansible refuses to run unnamed tasks
+  - It makes the task run twice as fast
+  - It automatically creates a Git commit
+  correct: It documents the task's purpose in the playbook and clearly identifies
+    what step is executing in the terminal logs
+  explanation: Descriptive task names provide clean audit trails in terminal logs
+    and CI/CD pipelines.
+- type: mcq
+  question: Which tool is commonly used to lint Ansible playbooks for best practices,
+    deprecated syntax, and security smells?
+  options:
+  - ansible-lint
+  - yamllint-strict
+  - flake8-ansible
+  - ansible-audit
+  correct: ansible-lint
+  explanation: '`ansible-lint` checks playbooks against official community best practices
+    and rules.'
+- type: true_false
+  question: Plain-text passwords and sensitive private keys should be stored directly
+    in playbook variables.
+  correct: false
+  explanation: Secrets should never be stored in plain text; use Ansible Vault (`ansible-vault`)
+    to encrypt sensitive variables.
+- type: mcq
+  question: Can multiple tags be assigned to a single task?
+  options:
+  - 'Yes, by providing a YAML list under `tags:` (e.g. `tags: [deploy, nginx, frontend]`)'
+  - No, only one tag per task is permitted
+  - Only two tags are allowed per task
+  - Tags can only be defined at the play level
+  correct: 'Yes, by providing a YAML list under `tags:` (e.g. `tags: [deploy, nginx,
+    frontend]`)'
+  explanation: Tasks can be labeled with multiple tags to allow granular selective
+    execution.
+- type: true_false
+  question: When registering a variable inside a loop task, the registered variable
+    will contain a `results` list containing output from every iteration.
+  correct: true
+  explanation: Loop tasks record per-iteration execution data in the `.results` list
+    attribute.
+- type: mcq
+  question: What is the recommended tool for managing and encrypting sensitive secrets
+    within an Ansible project?
+  options:
+  - Ansible Vault (`ansible-vault`)
+  - GnuPG manually
+  - Base64 encoding
+  - MD5 hashing
+  correct: Ansible Vault (`ansible-vault`)
+  explanation: Ansible Vault encrypts sensitive files and variables with AES-256 encryption.
+- type: mcq
+  question: How can you loop over a dictionary (e.g. file paths and permission modes)
+    in Ansible?
+  options:
+  - 'Using `loop: "{{ lookup(''dict'', file_permissions) }}"` and accessing `item.key`
+    and `item.value`'
+  - 'Using `loop: file_permissions.keys()`'
+  - 'Using `with_dict: file_permissions` only (loop is unsupported for dicts)'
+  - Ansible cannot loop over dictionary mappings
+  correct: 'Using `loop: "{{ lookup(''dict'', file_permissions) }}"` and accessing
+    `item.key` and `item.value`'
+  explanation: The `lookup('dict', dict_var)` plugin transforms a dictionary into
+    a list of key/value pairs accessible via `{{ item.key }}` and `{{ item.value }}`.
+- type: mcq
+  question: Which command-line flag lists all available tags in a playbook without
+    executing any tasks?
+  options:
+  - --list-tags
+  - --show-tags
+  - --tags-list
+  - -l-tags
+  correct: --list-tags
+  explanation: '`ansible-playbook playbook.yaml --list-tags` outputs all tags declared
+    across the plays.'
+- type: mcq
+  question: How do you specify multiple tags to execute simultaneously with the `--tags`
+    flag?
+  options:
+  - --tags "install,config"
+  - --tags install + config
+  - --tags install AND config
+  - --tags [install, config]
+  correct: --tags "install,config"
+  explanation: 'Multiple tags are passed as a comma-separated string: `--tags "install,config"`.'
+- type: mcq
+  question: According to Ansible naming conventions, what should be included in task
+    names to make them clear and actionable?
+  options:
+  - Action verbs (e.g. 'Install nginx web server', 'Copy configuration file')
+  - Host IP addresses
+  - The author's initials
+  - Timestamp of creation
+  correct: Action verbs (e.g. 'Install nginx web server', 'Copy configuration file')
+  explanation: Best practices dictate including verbs in task names to clearly describe
+    the action being taken.
+- type: true_false
+  question: 'In the web server practical example, setting `enabled: yes` on the service
+    module ensures the service starts automatically upon system boot.'
+  correct: true
+  explanation: '`enabled: yes` configures the init system (e.g. systemd) to start
+    the service at boot.'
+- type: mcq
+  question: In the practical example for system maintenance, which module safely handles
+    system reboot with delay and status checking?
+  options:
+  - ansible.builtin.reboot
+  - 'ansible.builtin.command: /sbin/reboot'
+  - 'ansible.builtin.shell: init 6'
+  - ansible.builtin.restart
+  correct: ansible.builtin.reboot
+  explanation: The dedicated `ansible.builtin.reboot` module reboots the host, disconnects
+    cleanly, waits for the host to come back online, and verifies SSH responsiveness.
+- type: mcq
+  question: In the maintenance example, what indicates on Debian/Ubuntu systems that
+    a reboot is required after package upgrades?
+  options:
+  - The existence of `/var/run/reboot-required` file
+  - An exit code of 99 from apt
+  - The `/etc/reboot` directory
+  - A pop-up message in syslog
+  correct: The existence of `/var/run/reboot-required` file
+  explanation: Debian and Ubuntu systems create the `/var/run/reboot-required` sentinel
+    file when an installed package requires a reboot.
+- type: true_false
+  question: Running `ansible-playbook playbook.yaml --check` on a playbook that uses
+    raw `command` or `shell` tasks may still execute changes on the target system.
+  correct: true
+  explanation: '`command` and `shell` modules do not know what the underlying script
+    does and cannot predict changes; by default, they do not run in check mode unless
+    `check_mode: yes` is forced.'
+- type: mcq
+  question: What parameter in `ansible.builtin.reboot` specifies how many seconds
+    to wait before rebooting the server?
+  options:
+  - pre_reboot_delay
+  - delay_before
+  - wait_seconds
+  - sleep
+  correct: pre_reboot_delay
+  explanation: '`pre_reboot_delay: 10` waits 10 seconds before initiating the reboot.'
+- type: true_false
+  question: You can assign both `install` and `packages` tags to a single task simultaneously.
+  correct: true
+  explanation: 'Tasks accept a YAML list of tags: `tags: [install, packages]`.'

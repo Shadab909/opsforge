@@ -1,0 +1,149 @@
+passing_score: 70
+questions:
+- type: mcq
+  question: What is the primary reason for disabling fact gathering in an Ansible
+    playbook?
+  options:
+  - To significantly increase playbook execution speed and reduce network overhead
+    across large inventories
+  - Because facts are deprecated in Ansible
+  - Because fact gathering requires root privileges
+  - To prevent Ansible from connecting to remote hosts
+  correct: To significantly increase playbook execution speed and reduce network overhead
+    across large inventories
+  explanation: Fact gathering inspects system devices and transfers JSON over SSH.
+    Disabling it skips this overhead, speeding up runs across large server fleets.
+- type: mcq
+  question: Which play-level directive disables fact gathering?
+  options:
+  - 'gather_facts: no (or gather_facts: false)'
+  - 'facts: disable'
+  - 'skip_facts: true'
+  - 'no_facts: yes'
+  correct: 'gather_facts: no (or gather_facts: false)'
+  explanation: 'Setting `gather_facts: no` or `gather_facts: false` at the play level
+    disables automatic fact gathering.'
+- type: true_false
+  question: 'If a play has `gather_facts: no`, you cannot use any `ansible_*` system
+    facts in tasks unless you manually invoke the setup module later.'
+  correct: true
+  explanation: Without fact gathering, system facts (`ansible_distribution`, `ansible_default_ipv4`,
+    etc.) will be undefined unless explicitly gathered.
+- type: mcq
+  question: 'How can you manually gather facts in the middle of a play that started
+    with `gather_facts: no`?'
+  options:
+  - Add a task calling the `ansible.builtin.setup` module
+  - 'Add `gather_facts: yes` to a task'
+  - Run `ansible-facts --refresh`
+  - You cannot gather facts once disabled
+  correct: Add a task calling the `ansible.builtin.setup` module
+  explanation: Executing the `setup` module as a task triggers fact gathering on-demand
+    whenever needed.
+- type: mcq
+  question: Which parameter of the `setup` module allows restricting fact collection
+    to specific categories (e.g. only network facts)?
+  options:
+  - 'gather_subset:'
+  - 'categories:'
+  - 'include_facts:'
+  - 'scope:'
+  correct: 'gather_subset:'
+  explanation: The `gather_subset:` parameter controls which subsets of facts are
+    collected (e.g. `network`, `hardware`, `virtual`).
+- type: mcq
+  question: How do you exclude the default fact collection and gather ONLY network
+    facts using `gather_subset`?
+  options:
+  - 'gather_subset: [''!all'', ''!min'', ''network'']'
+  - 'gather_subset: [''only_network'']'
+  - 'gather_subset: ''network_only'''
+  - 'gather_subset: [''none'', ''network'']'
+  correct: 'gather_subset: [''!all'', ''!min'', ''network'']'
+  explanation: The exclamation mark `!` negates subsets (`!all`, `!min`), followed
+    by `'network'` to collect only networking data.
+- type: true_false
+  question: For a playbook that only copies a static configuration file and restarts
+    a Docker container, disabling fact gathering is considered a performance best
+    practice.
+  correct: true
+  explanation: If tasks do not depend on system facts, skipping fact gathering saves
+    startup time on every host.
+- type: mcq
+  question: Which of the following is NOT a valid subset name for the `gather_subset`
+    parameter?
+  options:
+  - docker_containers
+  - hardware
+  - network
+  - virtual
+  correct: docker_containers
+  explanation: Standard subsets in the setup module are `all`, `min`, `hardware`,
+    `network`, `virtual`, `ohai`, and `facter`.
+- type: true_false
+  question: Pre-pending an exclamation mark `!` to a subset name in `gather_subset`
+    instructs Ansible to exclude that subset from collection.
+  correct: true
+  explanation: '`!` acts as a negation operator in `gather_subset` lists.'
+- type: mcq
+  question: In what configuration file can you configure persistent Fact Caching (e.g.
+    using JSON or Redis) across playbook runs?
+  options:
+  - ansible.cfg
+  - inventory.ini
+  - playbook.yaml
+  - facts.conf
+  correct: ansible.cfg
+  explanation: Fact caching is configured in `ansible.cfg` under `[defaults]` using
+    `fact_caching` and `fact_caching_connection`.
+- type: true_false
+  question: 'When Fact Caching is enabled in `ansible.cfg`, Ansible can retrieve cached
+    facts even when `gather_facts: no` is declared in a play.'
+  correct: true
+  explanation: Fact caching preserves fact data between runs so subsequent plays can
+    access them without re-querying nodes.
+- type: mcq
+  question: 'What happens if a play sets `gather_facts: no` but a task references
+    `when: ansible_distribution == ''Ubuntu''` without fact caching?'
+  options:
+  - 'The task fails with an ''AnsibleUndefinedVariable: ansible_distribution is undefined''
+    error'
+  - Ansible automatically pauses and gathers facts silently
+  - The conditional defaults to true
+  - The task is converted to an ad-hoc command
+  correct: 'The task fails with an ''AnsibleUndefinedVariable: ansible_distribution
+    is undefined'' error'
+  explanation: Because facts were not gathered, `ansible_distribution` does not exist,
+    triggering an undefined variable error.
+- type: mcq
+  question: Which fact gathering subset contains facts related to hypervisors, virtualization
+    technology, and guest/host detection?
+  options:
+  - virtual
+  - hypervisor
+  - cloud
+  - container
+  correct: virtual
+  explanation: The `virtual` subset populates facts like `ansible_virtualization_type`
+    and `ansible_virtualization_role`.
+- type: true_false
+  question: '`gather_facts: false` and `gather_facts: no` are functionally identical
+    in Ansible YAML syntax.'
+  correct: true
+  explanation: In YAML, `false` and `no` parse to the same boolean false value.
+- type: mcq
+  question: What minimal subset collects only basic identification facts without querying
+    storage devices or network routes?
+  options:
+  - min
+  - basic
+  - quick
+  - core
+  correct: min
+  explanation: The `min` subset gathers minimal facts required for basic host identification.
+- type: true_false
+  question: Disabling fact gathering has the highest performance benefit when managing
+    hundreds of servers across high-latency networks.
+  correct: true
+  explanation: Skipping SSH round-trips and payload transfers for hundreds of hosts
+    saves substantial execution time.

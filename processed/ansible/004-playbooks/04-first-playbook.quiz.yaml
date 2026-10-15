@@ -1,0 +1,170 @@
+passing_score: 70
+questions:
+- type: mcq
+  question: In a basic playbook play, which directive specifies the target machines
+    where tasks will execute?
+  options:
+  - 'hosts:'
+  - 'targets:'
+  - 'nodes:'
+  - 'servers:'
+  correct: 'hosts:'
+  explanation: The `hosts:` directive defines the targeted inventory hosts or groups
+    for that play.
+- type: mcq
+  question: Which builtin Ansible module is commonly used to print values or debug
+    messages during playbook execution?
+  options:
+  - ansible.builtin.debug
+  - ansible.builtin.echo
+  - ansible.builtin.print
+  - console
+  correct: ansible.builtin.debug
+  explanation: The `ansible.builtin.debug` module prints statements and variable values
+    during execution.
+- type: mcq
+  question: What is the primary difference between `ansible.builtin.command` and `ansible.builtin.shell`?
+  options:
+  - '`command` executes binaries directly without a shell, while `shell` executes
+    through `/bin/sh` and supports pipes `|` and redirects'
+  - '`command` runs as root; `shell` runs as guest'
+  - '`shell` is idempotent; `command` is not'
+  - '`command` works on Windows; `shell` does not'
+  correct: '`command` executes binaries directly without a shell, while `shell` executes
+    through `/bin/sh` and supports pipes `|` and redirects'
+  explanation: '`command` is safer and faster because it does not invoke a shell,
+    but `shell` is required if you need pipes `|`, redirects `>`, or environment expansion.'
+- type: mcq
+  question: What is the purpose of the `register:` keyword in a task?
+  options:
+  - To save the output and metadata of a task into a variable for later tasks to use
+  - To register the playbook with Ansible Galaxy
+  - To create a new user on the target system
+  - To log in to the remote machine
+  correct: To save the output and metadata of a task into a variable for later tasks
+    to use
+  explanation: '`register: <var_name>` captures return attributes like stdout, rc,
+    and changed state.'
+- type: true_false
+  question: When printing a registered variable's output with `ansible.builtin.debug`,
+    `var_name.stdout_lines` outputs the lines as a formatted list rather than one
+    unbroken string.
+  correct: true
+  explanation: '`stdout_lines` splits stdout by newlines into a JSON list of strings
+    for readable output.'
+- type: mcq
+  question: How are variables interpolated into task arguments in an Ansible playbook?
+  options:
+  - '{{ variable_name }}'
+  - $(variable_name)
+  - '%{variable_name}'
+  - ${variable_name}
+  correct: '{{ variable_name }}'
+  explanation: Ansible uses Jinja2 templating syntax with double curly braces `{{
+    var }}`.
+- type: mcq
+  question: In a registered task result named `output`, which attribute contains the
+    numeric process exit status code?
+  options:
+  - output.rc
+  - output.status
+  - output.code
+  - output.exit
+  correct: output.rc
+  explanation: The return code is stored in `.rc` (return code), where 0 indicates
+    success.
+- type: true_false
+  question: Every task in an Ansible playbook should have a descriptive `name:` field.
+  correct: true
+  explanation: Task names document the intent of each step and appear in terminal
+    logs during execution.
+- type: mcq
+  question: Which parameter of the `ansible.builtin.debug` module is used to print
+    an existing variable directly without string interpolation?
+  options:
+  - 'var:'
+  - 'msg:'
+  - 'text:'
+  - 'value:'
+  correct: 'var:'
+  explanation: '`var: my_var` evaluates the variable directly without quotes or `{{
+    }}`; `msg: "string"` is used for interpolated text.'
+- type: true_false
+  question: 'Setting `hosts: localhost` combined with `connection: local` runs the
+    playbook against the controller machine itself.'
+  correct: true
+  explanation: This tells Ansible to execute tasks locally on the machine driving
+    the playbook.
+- type: mcq
+  question: 'If a task does not specify privilege escalation (`become: yes`), what
+    permissions will the task run with?'
+  options:
+  - The permissions of the login/connecting user
+  - Root permissions automatically
+  - Guest read-only permissions
+  - The playbook will refuse to run
+  correct: The permissions of the login/connecting user
+  explanation: Tasks execute with the unprivileged login user's permissions unless
+    `become` is enabled.
+- type: true_false
+  question: If a task fails in a play, Ansible will by default stop executing subsequent
+    tasks on that failed host.
+  correct: true
+  explanation: Ansible aborts task execution on a host immediately when a task fails,
+    preserving the state for inspection.
+- type: mcq
+  question: Which return key in a registered variable indicates whether the system
+    state was altered?
+  options:
+  - .changed
+  - .modified
+  - .state
+  - .updated
+  correct: .changed
+  explanation: The boolean `.changed` flag is `true` if changes were applied, `false`
+    otherwise.
+- type: true_false
+  question: The `tasks:` section of a play is formatted as a YAML list of dictionaries.
+  correct: true
+  explanation: Each task is an item in the `tasks:` sequence, starting with `- name:`.
+- type: mcq
+  question: Which builtin module would you use to list files in a directory on target
+    hosts in an idempotent, structured way?
+  options:
+  - ansible.builtin.find
+  - ansible.builtin.ls
+  - ansible.builtin.dir
+  - ansible.builtin.list
+  correct: ansible.builtin.find
+  explanation: '`ansible.builtin.find` is the dedicated module for querying files
+    by pattern, size, and age.'
+- type: mcq
+  question: What is the key advantage of using `ansible.builtin.find` over executing
+    `ls` or `find` with the `command` module?
+  options:
+  - It returns structured JSON dictionary objects with detailed file attributes (mtime,
+    size, permissions)
+  - It automatically deletes files
+  - It works without Python installed on the remote machine
+  - It creates backup copies of all matched files
+  correct: It returns structured JSON dictionary objects with detailed file attributes
+    (mtime, size, permissions)
+  explanation: The `find` module produces typed data structures (`files` list with
+    path, size, mode, etc.) that can easily be manipulated in subsequent tasks.
+- type: true_false
+  question: A playbook file can contain multiple plays separated under the top-level
+    YAML list.
+  correct: true
+  explanation: 'A playbook is a list of plays: each item in the top-level list starts
+    with `- name: <Play Name>`.'
+- type: mcq
+  question: In the example playbook `004-list-files.yaml`, which shell command is
+    used to list files when testing the register keyword?
+  options:
+  - ls -la
+  - cat /etc/passwd
+  - df -h
+  - ps aux
+  correct: ls -la
+  explanation: The introductory example runs `ls -la` to capture and register directory
+    contents.

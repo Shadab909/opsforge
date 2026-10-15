@@ -1,0 +1,178 @@
+passing_score: 70
+questions:
+- type: mcq
+  question: On a remote managed host, in which directory must local custom fact files
+    be located?
+  options:
+  - /etc/ansible/facts.d/
+  - /etc/ansible/custom/
+  - /var/lib/ansible/facts/
+  - /usr/local/ansible/facts/
+  correct: /etc/ansible/facts.d/
+  explanation: Ansible automatically searches the `/etc/ansible/facts.d/` directory
+    on target machines for custom `.fact` files.
+- type: mcq
+  question: What file extension must local custom fact files have in `/etc/ansible/facts.d/`?
+  options:
+  - .fact
+  - .custom
+  - .yml
+  - .json
+  correct: .fact
+  explanation: Custom fact files must end with the `.fact` extension.
+- type: mcq
+  question: Which data formats are valid for static `.fact` files in `/etc/ansible/facts.d/`?
+  options:
+  - INI format and JSON format
+  - XML format only
+  - CSV format only
+  - Plain unstructured text
+  correct: INI format and JSON format
+  explanation: Ansible natively parses `.fact` files written in either standard INI
+    format or JSON format.
+- type: true_false
+  question: If a `.fact` file in `/etc/ansible/facts.d/` is marked as executable (`chmod
+    +x`), Ansible will execute it and parse the JSON returned on standard output.
+  correct: true
+  explanation: Executable `.fact` scripts are run dynamically at fact gathering time,
+    enabling custom dynamic hardware or application discovery.
+- type: mcq
+  question: Under which top-level variable namespace are local custom facts exposed
+    in playbooks?
+  options:
+  - ansible_local
+  - custom_facts
+  - local_facts
+  - ansible_custom
+  correct: ansible_local
+  explanation: All facts gathered from `/etc/ansible/facts.d/` are exposed under the
+    `ansible_local` namespace.
+- type: mcq
+  question: 'If you create `/etc/ansible/facts.d/custom.fact` containing:
+
+
+    [environment]
+
+    tier=production
+
+
+    How do you access the `tier` fact in a playbook?'
+  options:
+  - '{{ ansible_local.custom.environment.tier }}'
+  - '{{ custom.environment.tier }}'
+  - '{{ ansible_facts.tier }}'
+  - '{{ ansible_custom.tier }}'
+  correct: '{{ ansible_local.custom.environment.tier }}'
+  explanation: The hierarchy is `ansible_local.<filename_stem>.<section>.<key>`.
+- type: mcq
+  question: Which builtin Ansible module allows you to define dynamic custom facts
+    in memory during playbook execution?
+  options:
+  - ansible.builtin.set_fact
+  - ansible.builtin.create_fact
+  - ansible.builtin.var
+  - ansible.builtin.export_fact
+  correct: ansible.builtin.set_fact
+  explanation: '`ansible.builtin.set_fact` assigns variables dynamically during runtime,
+    scoped to the current host.'
+- type: true_false
+  question: Facts created with `set_fact` persist across subsequent tasks on that
+    host for the duration of the play.
+  correct: true
+  explanation: '`set_fact` variables remain defined in memory for that host throughout
+    remaining tasks in the playbook.'
+- type: mcq
+  question: What is the variable precedence of `set_fact` relative to gathered facts?
+  options:
+  - '`set_fact` (level 7) has HIGHER precedence than gathered facts (level 5)'
+  - Gathered facts have higher precedence than `set_fact`
+  - Both share the exact same precedence level
+  - '`set_fact` is lower than role defaults'
+  correct: '`set_fact` (level 7) has HIGHER precedence than gathered facts (level
+    5)'
+  explanation: '`set_fact` overrides gathered facts, role defaults, and inventory
+    variables.'
+- type: mcq
+  question: Which of the following demonstrates valid syntax for defining a custom
+    fact using `set_fact`?
+  options:
+  - "- ansible.builtin.set_fact:\n    deployment_stage: staging\n    backup_required:\
+    \ yes"
+  - '- set_fact = ''stage=staging'''
+  - "- fact:\n    set: staging"
+  - <fact name='stage'>staging</fact>
+  correct: "- ansible.builtin.set_fact:\n    deployment_stage: staging\n    backup_required:\
+    \ yes"
+  explanation: '`set_fact` takes a key-value dictionary of facts to register.'
+- type: true_false
+  question: If `/etc/ansible/facts.d/` does not exist on a managed node, Ansible will
+    fail fact gathering with a fatal error.
+  correct: false
+  explanation: If `/etc/ansible/facts.d/` does not exist, Ansible simply skips local
+    facts without error.
+- type: mcq
+  question: How can you create `/etc/ansible/facts.d/preferences.fact` on a remote
+    host using an Ansible playbook task?
+  options:
+  - Using `ansible.builtin.copy` or `ansible.builtin.template` with destination `/etc/ansible/facts.d/preferences.fact`
+  - 'Using `ansible.builtin.setup` with `create: true`'
+  - Using `ansible.builtin.git`
+  - Local facts cannot be deployed via playbooks
+  correct: Using `ansible.builtin.copy` or `ansible.builtin.template` with destination
+    `/etc/ansible/facts.d/preferences.fact`
+  explanation: Standard file modules (`file`, `copy`, `template`) can provision the
+    directory and `.fact` files on remote hosts.
+- type: true_false
+  question: Variables created with `set_fact` can reference existing facts gathered
+    from the system.
+  correct: true
+  explanation: 'You can interpolate existing facts (e.g. `api_url: ''https://{{ ansible_default_ipv4.address
+    }}:8443''`).'
+- type: mcq
+  question: What happens if a custom executable `.fact` script outputs non-JSON garbage
+    text to standard error or standard output?
+  options:
+  - Ansible reports an error parsing the fact file or sets `ansible_local.<name>`
+    to an error string
+  - Ansible crashes the Python interpreter
+  - The machine reboots immediately
+  - Ansible silently converts the text to a dictionary
+  correct: Ansible reports an error parsing the fact file or sets `ansible_local.<name>`
+    to an error string
+  explanation: Executable fact scripts must return valid JSON; non-JSON output causes
+    parsing warnings or errors.
+- type: true_false
+  question: Custom facts placed in `/etc/ansible/facts.d/` persist across system reboots
+    because they are stored on disk on the managed host.
+  correct: true
+  explanation: Files in `/etc/ansible/facts.d/` live on the persistent filesystem,
+    surviving reboots.
+- type: mcq
+  question: Which of the following JSON structures is valid for `/etc/ansible/facts.d/app.fact`?
+  options:
+  - "{\n  \"settings\": {\n    \"version\": \"1.0.0\",\n    \"enabled\": true\n  }\n\
+    }"
+  - '[version = 1.0.0]'
+  - <settings><version>1.0.0</version></settings>
+  - 'version: 1.0.0'
+  correct: "{\n  \"settings\": {\n    \"version\": \"1.0.0\",\n    \"enabled\": true\n\
+    \  }\n}"
+  explanation: Valid JSON objects with nested key-values parse cleanly into the `ansible_local.app`
+    dictionary.
+- type: true_false
+  question: '`set_fact` values are shared globally across all hosts in the inventory,
+    even hosts where the task did not run.'
+  correct: false
+  explanation: '`set_fact` is host-scoped; it assigns values only to the specific
+    target hosts currently executing the task.'
+- type: mcq
+  question: Which parameter in `set_fact` allows making a fact persistent across plays
+    in modern Ansible versions?
+  options:
+  - 'cacheable: yes'
+  - 'persist: true'
+  - 'global: yes'
+  - 'save_to_disk: true'
+  correct: 'cacheable: yes'
+  explanation: 'Setting `cacheable: yes` on `set_fact` writes the fact into the configured
+    fact cache for subsequent plays.'

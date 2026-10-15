@@ -1,0 +1,168 @@
+passing_score: 70
+questions:
+- type: mcq
+  question: How do you filter fact output on the command line to display only default
+    IPv4 networking facts?
+  options:
+  - ansible all -m setup -a "filter=ansible_default_ipv4*"
+  - ansible all -m setup --grep ipv4
+  - ansible all -m setup --filter-ipv4
+  - ansible all -m setup -f ipv4
+  correct: ansible all -m setup -a "filter=ansible_default_ipv4*"
+  explanation: The `-a "filter=<pattern>"` argument allows filtering facts using shell-style
+    wildcards.
+- type: mcq
+  question: Which command displays specifically the default IP address of `linux-server-2`
+    only?
+  options:
+  - ansible linux-server-2 -m setup -a "filter=ansible_default_ipv4.address"
+  - ansible all -m setup linux-server-2 -a "filter=ip"
+  - ansible-playbook setup -l linux-server-2 --ip
+  - ansible linux-server-2 --show-ip
+  correct: ansible linux-server-2 -m setup -a "filter=ansible_default_ipv4.address"
+  explanation: Combining host targeting `linux-server-2` with `filter=ansible_default_ipv4.address`
+    queries exactly that value.
+- type: true_false
+  question: The `filter` argument in the setup module supports shell wildcard patterns
+    such as `*`.
+  correct: true
+  explanation: Wildcards like `ansible_distribution*` match `ansible_distribution`,
+    `ansible_distribution_version`, `ansible_distribution_release`, etc.
+- type: mcq
+  question: How can you save discovered facts to a file on the Ansible controller
+    during playbook execution?
+  options:
+  - 'Use `copy` module with `delegate_to: localhost` and `content: "{{ ansible_facts
+    }}"`'
+  - Use `ansible.builtin.save_facts`
+  - Use `--export` in the playbook header
+  - Facts cannot be saved to the controller from a playbook
+  correct: 'Use `copy` module with `delegate_to: localhost` and `content: "{{ ansible_facts
+    }}"`'
+  explanation: Delegating the copy task to localhost writes the remote host's `ansible_facts`
+    to a local file on the controller machine.
+- type: mcq
+  question: Which Jinja2 filter formats a dictionary into clean, indented JSON suitable
+    for saving to disk?
+  options:
+  - to_nice_json
+  - to_json_format
+  - as_json
+  - pretty_json
+  correct: to_nice_json
+  explanation: '`{{ ansible_facts | to_nice_json }}` formats the dictionary into indented,
+    human-readable JSON.'
+- type: true_false
+  question: Running `ansible all -m setup -a "filter=ansible_distribution*"` will
+    display CPU and memory facts.
+  correct: false
+  explanation: The filter limits output to facts matching `ansible_distribution*`;
+    CPU and memory facts will be excluded.
+- type: mcq
+  question: 'In the context of multi-tier automation, what does `when: ansible_memory_mb.real.total
+    < 4096` accomplish?'
+  options:
+  - It ensures the task only runs on systems with less than 4GB (4096MB) of RAM
+  - It upgrades system RAM to 4GB
+  - It fails if the system has more than 4096MB of RAM
+  - It sets memory usage to 4096MB
+  correct: It ensures the task only runs on systems with less than 4GB (4096MB) of
+    RAM
+  explanation: The conditional evaluates memory capacity to protect resource-constrained
+    systems from heavy workloads.
+- type: mcq
+  question: Which task snippet safely checks if a dynamic backup fact was set before
+    triggering a backup script?
+  options:
+  - 'when: backup_required == "yes"'
+  - 'if: backup_required'
+  - 'when: {{ backup_required == true }}'
+  - 'when: backup_required()'
+  correct: 'when: backup_required == "yes"'
+  explanation: Standard string equality in `when:` checks whether the fact equals
+    `'yes'`.
+- type: true_false
+  question: You can filter facts using exact names without wildcards (e.g. `filter=ansible_hostname`).
+  correct: true
+  explanation: Exact string matches return only the specified fact.
+- type: mcq
+  question: Which special variable represents the inventory hostname of the current
+    node being processed in a task?
+  options:
+  - inventory_hostname
+  - current_host
+  - node_name
+  - target_host
+  correct: inventory_hostname
+  explanation: '`inventory_hostname` is the name of the current host as defined in
+    the Ansible inventory.'
+- type: true_false
+  question: The command `ansible webservers -m setup -a "filter=ansible_all_ipv4_addresses"`
+    will run against all hosts in the `webservers` group.
+  correct: true
+  explanation: Any valid inventory group name can be passed as the target pattern.
+- type: mcq
+  question: 'Why is `run_once: true` often combined with `delegate_to: localhost`
+    when creating an archive directory for fact files?'
+  options:
+  - To prevent creating the same local directory multiple times across a batch of
+    50 remote hosts
+  - Because directories can only be created once in Linux
+  - To reboot localhost
+  - To speed up SSH authentication
+  correct: To prevent creating the same local directory multiple times across a batch
+    of 50 remote hosts
+  explanation: '`run_once: true` ensures the directory creation task runs only once
+    on localhost rather than once per inventory host.'
+- type: true_false
+  question: 'In a dual-family playbook, `ansible.builtin.apt` tasks will automatically
+    run on CentOS hosts if `when: ansible_os_family == ''Debian''` is specified.'
+  correct: false
+  explanation: On CentOS, `ansible_os_family` is `'RedHat'`, so the `apt` task will
+    be safely skipped.
+- type: mcq
+  question: What is the primary benefit of testing fact filtering using ad-hoc commands
+    before writing playbooks?
+  options:
+  - It allows you to inspect the exact structure and keys of the facts on target systems
+    to write accurate conditionals
+  - It installs the required Python libraries automatically
+  - It compiles the playbook into YAML
+  - It verifies the cloud billing account
+  correct: It allows you to inspect the exact structure and keys of the facts on target
+    systems to write accurate conditionals
+  explanation: Checking fact names and types via ad-hoc CLI ensures you use the correct
+    variable keys in your playbook `when:` statements.
+- type: true_false
+  question: Discovered facts like `ansible_default_ipv4.address` can be used to dynamically
+    generate an `/etc/hosts` file containing all cluster nodes.
+  correct: true
+  explanation: Using `hostvars[host]['ansible_default_ipv4']['address']`, playbooks
+    frequently build dynamic `/etc/hosts` files across entire server fleets.
+- type: mcq
+  question: Which command would you run to find out what virtualization platform (e.g.
+    kvm, docker, vmware) a remote host is running on?
+  options:
+  - ansible all -m setup -a "filter=ansible_virtualization*"
+  - ansible all -m virt
+  - ansible all -a 'uname -v'
+  - ansible-virtual-check all
+  correct: ansible all -m setup -a "filter=ansible_virtualization*"
+  explanation: Filtering for `ansible_virtualization*` returns `ansible_virtualization_type`
+    and `ansible_virtualization_role`.
+- type: true_false
+  question: Ad-hoc setup commands execute changes on target systems and modify `/etc/environment`
+    by default.
+  correct: false
+  explanation: The setup module is read-only; it inspects system state without making
+    any modifications.
+- type: mcq
+  question: Which fact would you filter to quickly inspect the gateway IP address
+    on all servers in an inventory?
+  options:
+  - ansible all -m setup -a "filter=ansible_default_ipv4.gateway"
+  - ansible all -m setup -a "filter=default_gateway"
+  - ansible all -m gateway
+  - ansible all -a 'route'
+  correct: ansible all -m setup -a "filter=ansible_default_ipv4.gateway"
+  explanation: '`ansible_default_ipv4.gateway` isolates the gateway attribute.'
