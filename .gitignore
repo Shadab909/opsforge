@@ -1,0 +1,22 @@
+# User data is personal — don't commit, just carry the folder
+user_data/
+
+# Processed content can be regenerated
+processed/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+venv/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db

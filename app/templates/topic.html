@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+
+{% block title %}{{ topic.name }}{% endblock %}
+
+{% block breadcrumbs %}
+<a href="{{ url_for('dashboard.index') }}" class="hover:text-slate-200 transition">Dashboard</a>
+<span class="text-slate-600">/</span>
+<span class="text-slate-200 font-medium">{{ topic.name }}</span>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-8 w-full">
+    <!-- Topic Header Banner -->
+    <div class="bg-dark-800 border border-dark-700 rounded-2xl p-6 sm:p-8 shadow-xl w-full">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+            <div class="flex items-center space-x-5">
+                <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-dark-700 border border-dark-600 flex items-center justify-center text-4xl shadow-inner shrink-0">
+                    {{ topic.icon }}
+                </div>
+                <div>
+                    <div class="flex items-center space-x-2 text-xs font-semibold text-emerald-400 uppercase tracking-wider mb-1">
+                        <span>Learning Path</span>
+                        <span>&bull;</span>
+                        <span>DevOps Core</span>
+                    </div>
+                    <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white tracking-tight">{{ topic.name }}</h1>
+                    <p class="text-slate-400 text-sm sm:text-base mt-1.5 max-w-3xl leading-relaxed">{{ topic.description }}</p>
+                </div>
+            </div>
+            
+            <div class="bg-dark-900 border border-dark-700 px-6 py-4 rounded-2xl shrink-0 text-center sm:text-right w-full sm:w-auto shadow-inner">
+                <span class="text-xs text-slate-400 font-medium uppercase tracking-wider">Topic Completion</span>
+                <p class="text-3xl font-black text-emerald-400 mt-1">{{ overall_percentage }}%</p>
+                <span class="text-xs text-slate-500 font-mono">Structured Labs</span>
+            </div>
+        </div>
+
+        <div class="mt-8 pt-6 border-t border-dark-700/80">
+            <div class="flex items-center justify-between text-xs text-slate-400 mb-2">
+                <span>Overall Path Mastery</span>
+                <span class="font-bold text-slate-200">{{ overall_percentage }}%</span>
+            </div>
+            <div class="w-full bg-dark-900 rounded-full h-3 overflow-hidden border border-dark-700">
+                <div class="bg-gradient-to-r from-emerald-500 to-teal-400 h-3 rounded-full transition-all duration-500" style="width: {{ overall_percentage }}%"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Section: Modules List + Sidebar Guide on Widescreen -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 w-full">
+        <!-- Modules Feed (8 cols on lg) -->
+        <div class="lg:col-span-8 space-y-4">
+            <div class="flex items-center justify-between mb-2">
+                <h2 class="text-xl font-bold text-white flex items-center space-x-2">
+                    <span>📑</span>
+                    <span>Modules Curriculum</span>
+                </h2>
+                <span class="text-xs text-slate-400 font-mono">{{ modules|length }} module(s) available</span>
+            </div>
+
+            <div class="space-y-4">
+                {% for item in modules %}
+                {% set m = item.meta %}
+                {% set p = item.progress %}
+                <a href="{{ url_for('modules.module_view', topic_slug=topic.slug, module_slug=m.slug) }}"
+                   class="block bg-dark-800 border border-dark-700 hover:border-emerald-500/60 rounded-2xl p-6 sm:p-7 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-emerald-500/10 group">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                        <div class="flex items-start space-x-5">
+                            <div class="w-12 h-12 rounded-xl bg-dark-700 border border-dark-600 text-slate-200 font-mono font-bold flex items-center justify-center text-base shrink-0 group-hover:border-emerald-500/50 group-hover:text-emerald-400 transition-colors shadow-inner">
+                                {{ m.display_order }}
+                            </div>
+                            <div class="space-y-1.5">
+                                <div class="flex flex-wrap items-center gap-2.5">
+                                    <h3 class="text-lg sm:text-xl font-bold text-white group-hover:text-emerald-300 transition-colors">{{ m.name }}</h3>
+                                    {% if p.status == 'Completed' %}
+                                    <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 border border-emerald-500/30 text-emerald-400">Completed</span>
+                                    {% elif p.status == 'In Progress' %}
+                                    <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-500/10 border border-amber-500/30 text-amber-400">In Progress</span>
+                                    {% else %}
+                                    <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-700/60 text-slate-400 border border-slate-600">Not Started</span>
+                                    {% endif %}
+                                </div>
+                                <p class="text-slate-400 text-sm leading-relaxed max-w-2xl">{{ m.description }}</p>
+                                
+                                <div class="flex items-center space-x-4 pt-1 text-xs text-slate-500 font-mono">
+                                    <span>📖 {{ m.chunks|length }} chunks</span>
+                                    <span>&bull;</span>
+                                    <span>❓ {{ m.total_questions or (m.chunks|length * 6) }} questions</span>
+                                    <span>&bull;</span>
+                                    <span>🏆 70% to pass</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="md:text-right shrink-0 flex md:flex-col items-center md:items-end justify-between gap-3 border-t md:border-t-0 pt-4 md:pt-0 border-dark-700/80">
+                            <div>
+                                <span class="text-xs text-slate-400 font-mono">{{ p.completed_count }}/{{ p.total }} chunks passed</span>
+                                <div class="w-36 bg-dark-900 rounded-full h-2.5 overflow-hidden border border-dark-700 mt-1">
+                                    <div class="bg-gradient-to-r from-emerald-500 to-teal-400 h-2.5 rounded-full" style="width: {{ p.percentage }}%"></div>
+                                </div>
+                            </div>
+                            <span class="text-xs sm:text-sm font-semibold text-emerald-400 group-hover:translate-x-1 transition-transform flex items-center space-x-1.5">
+                                <span>Open Module</span>
+                                <span>&rarr;</span>
+                            </span>
+                        </div>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Sidebar / Topic Roadmap (4 cols on lg) -->
+        <div class="lg:col-span-4 space-y-6">
+            <!-- Learning Methodology Card -->
+            <div class="bg-dark-800 border border-dark-700 rounded-2xl p-6 shadow-xl space-y-4">
+                <h3 class="text-base font-bold text-white flex items-center space-x-2">
+                    <span>⚡</span>
+                    <span>Learning Methodology</span>
+                </h3>
+                <div class="space-y-3.5 text-xs sm:text-sm text-slate-300">
+                    <div class="flex items-start space-x-3">
+                        <span class="w-6 h-6 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">1</span>
+                        <div>
+                            <p class="font-semibold text-slate-100">Review Chunk Concepts</p>
+                            <p class="text-xs text-slate-400 mt-0.5">Digest bite-sized sections with clean code examples and tables.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start space-x-3">
+                        <span class="w-6 h-6 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">2</span>
+                        <div>
+                            <p class="font-semibold text-slate-100">Mark as Reviewed</p>
+                            <p class="text-xs text-slate-400 mt-0.5">Unlocks the dedicated section quiz once you've finished reading.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start space-x-3">
+                        <span class="w-6 h-6 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">3</span>
+                        <div>
+                            <p class="font-semibold text-slate-100">Pass the Section Quiz</p>
+                            <p class="text-xs text-slate-400 mt-0.5">Score 70% or higher to master each chunk and track progress.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Future Hands-on Sandbox Card -->
+            <div class="p-6 rounded-2xl border-2 border-dashed border-teal-500/30 bg-teal-950/20 space-y-2">
+                <div class="flex items-center space-x-2">
+                    <span class="text-xl">💻</span>
+                    <h4 class="text-sm font-bold text-teal-300">Interactive Terminal Labs</h4>
+                </div>
+                <p class="text-xs text-slate-400 leading-relaxed">
+                    Browser-based Linux container sandbox integration is prepared for upcoming releases. You'll soon be able to execute these playbooks directly in your browser.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

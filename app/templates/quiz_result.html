@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block title %}Results: {{ chunk.title }}{% endblock %}
+
+{% block breadcrumbs %}
+<a href="{{ url_for('dashboard.index') }}" class="hover:text-slate-200 transition">Dashboard</a>
+<span class="text-slate-600">/</span>
+<a href="{{ url_for('modules.topic_view', topic_slug=topic.slug) }}" class="hover:text-slate-200 transition">{{ topic.name }}</a>
+<span class="text-slate-600">/</span>
+<a href="{{ url_for('modules.module_view', topic_slug=topic.slug, module_slug=module.slug) }}" class="hover:text-slate-200 transition">{{ module.name }}</a>
+<span class="text-slate-600">/</span>
+<span class="text-slate-200 font-medium">Quiz Results</span>
+{% endblock %}
+
+{% block content %}
+<div class="w-full max-w-[1400px] mx-auto space-y-8 pb-12">
+    <!-- Result Summary Banner -->
+    <div class="bg-dark-800 border {% if passed %}border-emerald-500/50 bg-gradient-to-b from-emerald-950/30 to-dark-800{% else %}border-rose-500/50 bg-gradient-to-b from-rose-950/30 to-dark-800{% endif %} rounded-2xl p-6 sm:p-8 shadow-2xl text-center">
+        <div class="inline-flex items-center justify-center w-20 h-20 rounded-full {% if passed %}bg-emerald-500/20 text-emerald-400 border border-emerald-500/40{% else %}bg-rose-500/20 text-rose-400 border border-rose-500/40{% endif %} text-4xl mb-4">
+            {% if passed %}🏆{% else %}🔄{% endif %}
+        </div>
+
+        <h1 class="text-2xl sm:text-3xl font-extrabold text-white">
+            {% if passed %}Section Mastered! 🎉{% else %}Keep Practicing!{% endif %}
+        </h1>
+        <p class="text-sm text-slate-400 mt-1 max-w-md mx-auto">
+            {% if passed %}
+            Excellent work! You scored <strong class="text-emerald-400">{{ score }}%</strong>, exceeding the {{ passing_score }}% threshold.
+            {% else %}
+            You scored <strong class="text-rose-400">{{ score }}%</strong>. The passing threshold is {{ passing_score }}%. Review the explanations below and try again.
+            {% endif %}
+        </p>
+
+        <!-- Score metrics -->
+        <div class="grid grid-cols-3 gap-4 max-w-md mx-auto mt-6 pt-6 border-t border-dark-700/80">
+            <div>
+                <p class="text-xs text-slate-500 uppercase tracking-wider">Score</p>
+                <p class="text-2xl font-black {% if passed %}text-emerald-400{% else %}text-rose-400{% endif %}">{{ score }}%</p>
+            </div>
+            <div>
+                <p class="text-xs text-slate-500 uppercase tracking-wider">Correct</p>
+                <p class="text-2xl font-black text-slate-100">{{ correct_count }}/{{ total }}</p>
+            </div>
+            <div>
+                <p class="text-xs text-slate-500 uppercase tracking-wider">Result</p>
+                <p class="text-2xl font-black {% if passed %}text-emerald-400{% else %}text-rose-400{% endif %}">
+                    {% if passed %}PASSED{% else %}RETRY{% endif %}
+                </p>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
+            <a href="{{ url_for('quiz.take_quiz', topic_slug=topic.slug, module_slug=module.slug, chunk_slug=chunk.slug) }}"
+               class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-dark-700 hover:bg-dark-600 border border-dark-600 text-slate-200 hover:text-white font-semibold text-sm transition">
+                🔄 Retake Quiz
+            </a>
+            <a href="{{ url_for('modules.module_view', topic_slug=topic.slug, module_slug=module.slug) }}"
+               class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-semibold text-sm shadow-lg shadow-emerald-600/20 transition">
+                Back to Module &rarr;
+            </a>
+        </div>
+    </div>
+
+    <!-- Detailed Question Breakdown -->
+    <div class="space-y-4">
+        <h2 class="text-lg font-bold text-white flex items-center space-x-2">
+            <span>🔍</span>
+            <span>Question Review & Explanations</span>
+        </h2>
+
+        {% for r in results %}
+        <div class="bg-dark-800 border {% if r.is_correct %}border-emerald-500/30{% else %}border-rose-500/30{% endif %} rounded-2xl p-6 shadow-xl space-y-3">
+            <div class="flex items-start justify-between gap-4">
+                <div class="flex items-start space-x-3">
+                    <span class="w-6 h-6 rounded-md {% if r.is_correct %}bg-emerald-500/20 text-emerald-400 border border-emerald-500/30{% else %}bg-rose-500/20 text-rose-400 border border-rose-500/30{% endif %} text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">
+                        {{ r.index }}
+                    </span>
+                    <h3 class="text-sm font-semibold text-slate-100 leading-snug">{{ r.question }}</h3>
+                </div>
+                <span class="text-xs font-bold uppercase px-2 py-0.5 rounded {% if r.is_correct %}bg-emerald-500/10 text-emerald-400 border border-emerald-500/30{% else %}bg-rose-500/10 text-rose-400 border border-rose-500/30{% endif %} shrink-0">
+                    {% if r.is_correct %}Correct{% else %}Incorrect{% endif %}
+                </span>
+            </div>
+
+            <!-- Answers -->
+            <div class="pl-9 space-y-1.5 text-xs font-mono">
+                <p class="text-slate-400">
+                    Your Answer: 
+                    <span class="font-bold {% if r.is_correct %}text-emerald-400{% else %}text-rose-400{% endif %}">
+                        {{ r.user_answer }}
+                    </span>
+                </p>
+                {% if not r.is_correct %}
+                <p class="text-slate-400">
+                    Correct Answer: 
+                    <span class="font-bold text-emerald-400">
+                        {{ r.correct_answer }}
+                    </span>
+                </p>
+                {% endif %}
+            </div>
+
+            <!-- Explanation -->
+            {% if r.explanation %}
+            <div class="mt-2 ml-9 p-3 rounded-xl bg-dark-900/80 border border-dark-700 text-xs text-slate-300 leading-relaxed">
+                <strong class="text-slate-400 uppercase tracking-wider font-mono text-[10px] block mb-0.5">💡 Explanation</strong>
+                {{ r.explanation }}
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

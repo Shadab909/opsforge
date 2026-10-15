@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}Page Not Found{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto py-20 text-center space-y-5">
+    <div class="w-20 h-20 rounded-2xl bg-dark-800 border border-dark-700 flex items-center justify-center text-4xl mx-auto shadow-xl">
+        🛸
+    </div>
+    <h1 class="text-3xl font-extrabold text-white">404 — Module Not Found</h1>
+    <p class="text-slate-400 text-sm">The concept, module, or section you are looking for doesn't exist or hasn't been forged yet.</p>
+    <div class="pt-4">
+        <a href="{{ url_for('dashboard.index') }}" class="inline-flex items-center space-x-2 px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-sm shadow-lg shadow-emerald-600/20 transition">
+            <span>&larr; Back to Dashboard</span>
+        </a>
+    </div>
+</div>
+{% endblock %}

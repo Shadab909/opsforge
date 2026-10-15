@@ -1,0 +1,339 @@
+{% extends "base.html" %}
+
+{% block title %}Quiz: {{ chunk.title }}{% endblock %}
+
+{% block breadcrumbs %}
+<a href="{{ url_for('dashboard.index') }}" class="hover:text-slate-200 transition">Dashboard</a>
+<span class="text-slate-600">/</span>
+<a href="{{ url_for('modules.topic_view', topic_slug=topic.slug) }}" class="hover:text-slate-200 transition">{{ topic.name }}</a>
+<span class="text-slate-600">/</span>
+<a href="{{ url_for('modules.module_view', topic_slug=topic.slug, module_slug=module.slug) }}" class="hover:text-slate-200 transition">{{ module.name }}</a>
+<span class="text-slate-600">/</span>
+<a href="{{ url_for('modules.chunk_view', topic_slug=topic.slug, module_slug=module.slug, chunk_slug=chunk.slug) }}" class="hover:text-slate-200 transition">{{ chunk.title }}</a>
+<span class="text-slate-600">/</span>
+<span class="text-slate-200 font-medium">Quiz Mode</span>
+{% endblock %}
+
+{% block content %}
+<div class="w-full max-w-[1400px] mx-auto space-y-6 pb-16">
+    <!-- Header Banner -->
+    <div class="bg-dark-800 border border-dark-700 rounded-2xl p-5 sm:p-7 shadow-xl w-full">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div>
+                <div class="flex items-center space-x-2 text-xs font-semibold text-emerald-400 uppercase tracking-wider mb-1">
+                    <span>⚡ Interactive Quiz Mode</span>
+                    <span>&bull;</span>
+                    <span>{{ questions|length }} Questions</span>
+                </div>
+                <h1 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">{{ chunk.title }}</h1>
+                <p class="text-slate-400 text-xs sm:text-sm mt-1">Answer each question one by one. Pass threshold is <strong class="text-emerald-400 font-semibold">{{ passing_score }}%</strong>.</p>
+            </div>
+
+            <div class="flex items-center space-x-3 shrink-0">
+                <div class="bg-dark-900 border border-dark-700 px-4 py-2.5 rounded-xl text-center">
+                    <span class="text-[11px] text-slate-400 font-mono">Pass Threshold</span>
+                    <p class="text-lg font-black text-emerald-400 leading-tight">{{ passing_score }}%</p>
+                </div>
+                {% if progress.best_score > 0 %}
+                <div class="bg-dark-900 border border-dark-700 px-4 py-2.5 rounded-xl text-center">
+                    <span class="text-[11px] text-slate-400 font-mono">Best Score</span>
+                    <p class="text-lg font-black text-teal-400 leading-tight">{{ progress.best_score }}%</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Live Step Progress Bar -->
+        <div class="mt-6 pt-5 border-t border-dark-700/80">
+            <div class="flex items-center justify-between text-xs text-slate-400 mb-2 font-mono">
+                <span>Question <strong id="stepIndicator" class="text-slate-100 text-sm">1</strong> of {{ questions|length }}</span>
+                <span id="progressPercentage" class="text-emerald-400 font-semibold">0% Completed</span>
+            </div>
+            <div class="w-full bg-dark-900 rounded-full h-2.5 overflow-hidden border border-dark-700">
+                <div id="quizProgressBar" class="bg-gradient-to-r from-emerald-500 to-teal-400 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <!-- Horizontally Scrollable Question Navigator Pills -->
+        <div class="mt-5 pt-4 border-t border-dark-700/60">
+            <div class="flex items-center space-x-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-dark-600" id="questionPillsBar">
+                {% for q in questions %}
+                {% set idx = loop.index0 %}
+                <button type="button" 
+                        onclick="goToQuestion({{ idx }})" 
+                        id="pill-{{ idx }}"
+                        class="quiz-pill w-8 h-8 rounded-lg text-xs font-mono font-bold flex items-center justify-center shrink-0 border transition-all duration-150 {% if idx == 0 %}border-cyan-400 bg-cyan-950/40 text-cyan-300 shadow-md shadow-cyan-500/20 ring-1 ring-cyan-400{% else %}border-dark-700 bg-dark-900 text-slate-400 hover:border-slate-500 hover:text-slate-200{% endif %}"
+                        title="Question {{ loop.index }}">
+                    {{ loop.index }}
+                </button>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Interactive Sliding Question Form -->
+    <form action="{{ url_for('quiz.submit_quiz', topic_slug=topic.slug, module_slug=module.slug, chunk_slug=chunk.slug) }}" 
+          method="POST" 
+          id="quizForm" 
+          class="w-full">
+        
+        <!-- Questions Carousel / Slider Container -->
+        <div class="relative overflow-hidden w-full min-h-[380px]" id="questionsCarousel">
+            {% for q in questions %}
+            {% set q_idx = loop.index0 %}
+            <div class="quiz-slide-card transition-all duration-300 {% if q_idx == 0 %}block{% else %}hidden opacity-0{% endif %}"
+                 id="slide-{{ q_idx }}"
+                 data-index="{{ q_idx }}">
+                
+                <div class="bg-dark-800 border border-dark-700 rounded-2xl p-6 sm:p-10 shadow-2xl space-y-6 w-full">
+                    <!-- Slide Header -->
+                    <div class="flex items-start justify-between gap-4 border-b border-dark-700/80 pb-4">
+                        <div class="flex items-start space-x-3.5">
+                            <span class="w-8 h-8 rounded-xl bg-dark-700 border border-dark-600 text-emerald-400 text-sm font-mono font-bold flex items-center justify-center shrink-0 mt-0.5 shadow-inner">
+                                {{ loop.index }}
+                            </span>
+                            <div>
+                                <span class="text-[11px] font-mono uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-dark-700 text-slate-300 border border-dark-600 mb-1.5 inline-block">
+                                    {% if q.type == 'true_false' %}True / False{% else %}Multiple Choice{% endif %}
+                                </span>
+                                <h2 class="text-lg sm:text-xl font-bold text-slate-100 leading-snug">{{ q.question }}</h2>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Slide Options -->
+                    <div class="space-y-3 pt-2">
+                        {% if q.type == 'true_false' %}
+                            <label class="quiz-option-card flex items-center space-x-3.5 p-4 sm:p-5 rounded-xl border border-dark-700 bg-dark-900/70 hover:border-emerald-500/50 hover:bg-dark-700/40 cursor-pointer transition-all duration-150 group"
+                                   id="opt-card-{{ q_idx }}-true">
+                                <input type="radio" 
+                                       name="q_{{ q_idx }}" 
+                                       value="true" 
+                                       onchange="onOptionSelected({{ q_idx }})"
+                                       class="w-4 h-4 text-emerald-500 bg-dark-900 border-dark-600 focus:ring-emerald-500 focus:ring-offset-dark-800">
+                                <span class="text-sm sm:text-base font-medium text-slate-200 group-hover:text-white transition">True</span>
+                            </label>
+
+                            <label class="quiz-option-card flex items-center space-x-3.5 p-4 sm:p-5 rounded-xl border border-dark-700 bg-dark-900/70 hover:border-emerald-500/50 hover:bg-dark-700/40 cursor-pointer transition-all duration-150 group"
+                                   id="opt-card-{{ q_idx }}-false">
+                                <input type="radio" 
+                                       name="q_{{ q_idx }}" 
+                                       value="false" 
+                                       onchange="onOptionSelected({{ q_idx }})"
+                                       class="w-4 h-4 text-emerald-500 bg-dark-900 border-dark-600 focus:ring-emerald-500 focus:ring-offset-dark-800">
+                                <span class="text-sm sm:text-base font-medium text-slate-200 group-hover:text-white transition">False</span>
+                            </label>
+                        {% else %}
+                            {% for opt in q.options %}
+                            {% set opt_idx = loop.index0 %}
+                            <label class="quiz-option-card flex items-center space-x-3.5 p-4 sm:p-5 rounded-xl border border-dark-700 bg-dark-900/70 hover:border-emerald-500/50 hover:bg-dark-700/40 cursor-pointer transition-all duration-150 group"
+                                   id="opt-card-{{ q_idx }}-{{ opt_idx }}">
+                                <input type="radio" 
+                                       name="q_{{ q_idx }}" 
+                                       value="{{ opt }}" 
+                                       onchange="onOptionSelected({{ q_idx }})"
+                                       class="w-4 h-4 text-emerald-500 bg-dark-900 border-dark-600 focus:ring-emerald-500 focus:ring-offset-dark-800 shrink-0">
+                                <span class="text-sm sm:text-base font-medium text-slate-200 group-hover:text-white transition leading-relaxed">{{ opt }}</span>
+                            </label>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Slider Bottom Action Bar -->
+        <div class="mt-8 bg-dark-800 border border-dark-700 rounded-2xl p-5 sm:p-6 shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4 w-full">
+            <div class="flex items-center space-x-3 w-full sm:w-auto">
+                <button type="button" 
+                        id="prevBtn" 
+                        onclick="prevQuestion()" 
+                        disabled
+                        class="w-1/2 sm:w-auto px-5 py-3 rounded-xl bg-dark-700 hover:bg-dark-600 disabled:opacity-40 disabled:hover:bg-dark-700 disabled:cursor-not-allowed border border-dark-600 text-slate-300 hover:text-white text-sm font-semibold transition flex items-center justify-center space-x-1.5">
+                    <span>&larr;</span>
+                    <span>Previous</span>
+                </button>
+
+                <button type="button" 
+                        id="nextBtn" 
+                        onclick="nextQuestion()" 
+                        class="w-1/2 sm:w-auto px-6 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 border border-emerald-500/50 text-white text-sm font-bold shadow-lg shadow-emerald-600/20 transition flex items-center justify-center space-x-1.5">
+                    <span>Next</span>
+                    <span>&rarr;</span>
+                </button>
+            </div>
+
+            <!-- Answered Status Pill -->
+            <div class="text-xs text-slate-400 font-mono text-center sm:text-right flex items-center space-x-2">
+                <span id="answeredCounter" class="px-3 py-1.5 rounded-lg bg-dark-900 border border-dark-700 text-slate-300">
+                    0 of {{ questions|length }} answered
+                </span>
+            </div>
+
+            <!-- Submit Button (Always available or highlighted at end) -->
+            <div class="w-full sm:w-auto">
+                <button type="submit" 
+                        id="submitQuizBtn"
+                        class="w-full sm:w-auto px-8 py-3 rounded-xl bg-gradient-to-r from-emerald-600 via-teal-500 to-teal-400 hover:from-emerald-500 hover:to-teal-300 text-white font-extrabold text-sm shadow-xl shadow-emerald-600/25 transition-all flex items-center justify-center space-x-2">
+                    <span>Submit &amp; View Results</span>
+                    <span>🚀</span>
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // State management for interactive slider quiz
+    const TOTAL_QUESTIONS = {{ questions|length }};
+    let currentQuestionIndex = 0;
+
+    function updateUI() {
+        // 1. Show only current slide
+        for (let i = 0; i < TOTAL_QUESTIONS; i++) {
+            const slide = document.getElementById(`slide-${i}`);
+            const pill = document.getElementById(`pill-${i}`);
+            if (i === currentQuestionIndex) {
+                slide.classList.remove('hidden');
+                slide.classList.add('block');
+                setTimeout(() => slide.classList.remove('opacity-0'), 10);
+
+                // Highlight active pill
+                if (pill) {
+                    pill.classList.add('ring-2', 'ring-cyan-400', 'border-cyan-400', 'bg-cyan-950/40', 'text-cyan-300');
+                    pill.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                }
+            } else {
+                slide.classList.add('hidden', 'opacity-0');
+                slide.classList.remove('block');
+
+                // Remove active ring
+                if (pill) {
+                    pill.classList.remove('ring-2', 'ring-cyan-400', 'border-cyan-400', 'bg-cyan-950/40', 'text-cyan-300');
+                }
+            }
+        }
+
+        // 2. Update step indicators
+        const stepIndicator = document.getElementById('stepIndicator');
+        if (stepIndicator) stepIndicator.innerText = (currentQuestionIndex + 1);
+
+        // 3. Update Prev / Next buttons
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        if (prevBtn) prevBtn.disabled = (currentQuestionIndex === 0);
+        if (nextBtn) {
+            if (currentQuestionIndex === TOTAL_QUESTIONS - 1) {
+                nextBtn.classList.add('hidden');
+            } else {
+                nextBtn.classList.remove('hidden');
+            }
+        }
+
+        updateProgress();
+    }
+
+    function goToQuestion(idx) {
+        if (idx >= 0 && idx < TOTAL_QUESTIONS) {
+            currentQuestionIndex = idx;
+            updateUI();
+        }
+    }
+
+    function nextQuestion() {
+        if (currentQuestionIndex < TOTAL_QUESTIONS - 1) {
+            currentQuestionIndex++;
+            updateUI();
+        }
+    }
+
+    function prevQuestion() {
+        if (currentQuestionIndex > 0) {
+            currentQuestionIndex--;
+            updateUI();
+        }
+    }
+
+    function onOptionSelected(qIdx) {
+        // Highlight chosen option card
+        const slide = document.getElementById(`slide-${qIdx}`);
+        const cards = slide.querySelectorAll('.quiz-option-card');
+        cards.forEach(card => {
+            const radio = card.querySelector('input[type="radio"]');
+            if (radio && radio.checked) {
+                card.classList.add('border-emerald-500', 'bg-emerald-500/15', 'shadow-md', 'shadow-emerald-500/10');
+                card.classList.remove('border-dark-700', 'bg-dark-900/70');
+            } else {
+                card.classList.remove('border-emerald-500', 'bg-emerald-500/15', 'shadow-md', 'shadow-emerald-500/10');
+                card.classList.add('border-dark-700', 'bg-dark-900/70');
+            }
+        });
+
+        // Mark pill as answered
+        const pill = document.getElementById(`pill-${qIdx}`);
+        if (pill) {
+            pill.classList.add('bg-emerald-500/20', 'text-emerald-400', 'border-emerald-500/40');
+        }
+
+        updateProgress();
+    }
+
+    function updateProgress() {
+        let answeredCount = 0;
+        for (let i = 0; i < TOTAL_QUESTIONS; i++) {
+            const radios = document.querySelectorAll(`input[name="q_${i}"]`);
+            const isAnswered = Array.from(radios).some(r => r.checked);
+            if (isAnswered) {
+                answeredCount++;
+                const pill = document.getElementById(`pill-${i}`);
+                if (pill) {
+                    pill.classList.add('bg-emerald-500/20', 'text-emerald-400', 'border-emerald-500/40');
+                }
+            }
+        }
+
+        const percentage = Math.round((answeredCount / TOTAL_QUESTIONS) * 100);
+        const progressBar = document.getElementById('quizProgressBar');
+        const progressPercentage = document.getElementById('progressPercentage');
+        const answeredCounter = document.getElementById('answeredCounter');
+
+        if (progressBar) progressBar.style.width = `${percentage}%`;
+        if (progressPercentage) progressPercentage.innerText = `${percentage}% Answered`;
+        if (answeredCounter) answeredCounter.innerText = `${answeredCount} of ${TOTAL_QUESTIONS} answered`;
+    }
+
+    // Keyboard navigation (ArrowLeft = prev, ArrowRight = next)
+    document.addEventListener('keydown', (e) => {
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+        if (e.key === 'ArrowRight') nextQuestion();
+        if (e.key === 'ArrowLeft') prevQuestion();
+    });
+
+    // Form submit validation
+    document.getElementById('quizForm').addEventListener('submit', (e) => {
+        let unansweredIndices = [];
+        for (let i = 0; i < TOTAL_QUESTIONS; i++) {
+            const radios = document.querySelectorAll(`input[name="q_${i}"]`);
+            const isAnswered = Array.from(radios).some(r => r.checked);
+            if (!isAnswered) {
+                unansweredIndices.push(i);
+            }
+        }
+
+        if (unansweredIndices.length > 0) {
+            e.preventDefault();
+            const firstUnanswered = unansweredIndices[0];
+            goToQuestion(firstUnanswered);
+            alert(`You have ${unansweredIndices.length} unanswered question(s). Jumping to question ${firstUnanswered + 1}.`);
+        }
+    });
+
+    // Initialize on load
+    document.addEventListener('DOMContentLoaded', () => {
+        updateUI();
+    });
+</script>
+{% endblock %}
