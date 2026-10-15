@@ -1,0 +1,11 @@
+{
+  "username": "mohammad_shadab",
+  "display_name": "Mohammad Shadab",
+  "created_at": "2026-10-14T11:22:41.463435",
+  "last_active": "2026-10-15T12:14:29.145527",
+  "preferences": {
+    "theme": "dark",
+    "passing_score": 70
+  },
+  "password_hash": "scrypt:32768:8:1$71XVlpcdwmA1E0NS$9542d8e0850b78e57170d580180af7d84ce6c58d501a54ee6d65507502da0569d854d8178349979183a9a7d3020d63ee425b60911866a827a43ed681bbe2e22b"
+}

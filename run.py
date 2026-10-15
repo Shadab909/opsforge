@@ -51,7 +51,7 @@ def main():
         threading.Thread(target=open_browser, args=(url,), daemon=True).start()
 
     try:
-        app.run(host=args.host, port=args.port, debug=False)
+        app.run(host=args.host, port=args.port, debug=True)
     except KeyboardInterrupt:
         print("\n👋 OpsForge stopped gracefully. See you soon!")
 

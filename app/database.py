@@ -17,15 +17,16 @@ def get_profile_path(username: str) -> Path:
     return get_user_dir(username) / "profile.json"
 
 def get_db(username: str) -> sqlite3.Connection:
-    conn = sqlite3.connect(get_db_path(username))
+    db_path = get_db_path(username)
+    is_new = not db_path.exists()
+    conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
+    if is_new:
+        init_db_tables(conn)
     return conn
 
-def init_user_db(username: str):
-    """Initializes tables in user_data/<username>/progress.db"""
-    conn = get_db(username)
+def init_db_tables(conn: sqlite3.Connection):
     cursor = conn.cursor()
-    
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS chunk_progress (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -54,8 +55,12 @@ def init_user_db(username: str):
         attempted_at TEXT DEFAULT CURRENT_TIMESTAMP
     );
     """)
-
     conn.commit()
+
+def init_user_db(username: str):
+    """Initializes tables in user_data/<username>/progress.db"""
+    conn = get_db(username)
+    init_db_tables(conn)
     conn.close()
 
 def list_profiles():
@@ -76,6 +81,8 @@ def list_profiles():
     profiles.sort(key=lambda x: x.get("last_active", ""), reverse=True)
     return profiles
 
+from werkzeug.security import generate_password_hash, check_password_hash
+
 def get_profile(username: str):
     p_path = get_profile_path(username)
     if p_path.exists():
@@ -86,14 +93,25 @@ def get_profile(username: str):
             return None
     return None
 
-def create_profile(username: str, display_name: str = None, preferences: dict = None):
-    clean_username = username.strip().lower().replace(" ", "-")
+def verify_profile_password(username: str, password: str) -> bool:
+    p = get_profile(username)
+    if not p:
+        return False
+    # If no password_hash was set yet (legacy), allow blank or require setting
+    stored_hash = p.get("password_hash")
+    if not stored_hash:
+        return True
+    return check_password_hash(stored_hash, password)
+
+def create_profile(username: str, display_name: str = None, password: str = None, preferences: dict = None):
+    clean_username = username.strip().lower().replace(" ", "_")
     user_dir = get_user_dir(clean_username)
     now = datetime.now().isoformat()
     
     profile_data = {
         "username": clean_username,
         "display_name": display_name or clean_username.capitalize(),
+        "password_hash": generate_password_hash(password) if password else None,
         "created_at": now,
         "last_active": now,
         "preferences": preferences or {
@@ -107,6 +125,31 @@ def create_profile(username: str, display_name: str = None, preferences: dict = 
         
     init_user_db(clean_username)
     return profile_data
+
+def update_profile(username: str, display_name: str = None, new_password: str = None, current_password: str = None) -> tuple:
+    """Updates profile display name or password. Returns (success: bool, message: str)"""
+    p = get_profile(username)
+    if not p:
+        return False, "Profile not found."
+
+    stored_hash = p.get("password_hash")
+    # Verify current password if a password was already set
+    if stored_hash:
+        if not current_password or not check_password_hash(stored_hash, current_password):
+            return False, "Current password is incorrect."
+
+    if display_name and display_name.strip():
+        p["display_name"] = display_name.strip()
+
+    if new_password and new_password.strip():
+        p["password_hash"] = generate_password_hash(new_password.strip())
+
+    p["last_active"] = datetime.now().isoformat()
+
+    with open(get_profile_path(username), "w", encoding="utf-8") as f:
+        json.dump(p, f, indent=2)
+
+    return True, "Profile updated successfully!"
 
 def update_last_active(username: str):
     p = get_profile(username)

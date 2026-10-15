@@ -77,6 +77,10 @@
                             <p class="text-xs text-slate-400">Active Profile</p>
                             <p class="text-sm font-semibold text-emerald-400">@{{ current_user.username }}</p>
                         </div>
+                        <a href="{{ url_for('auth.edit_profile') }}" class="flex items-center space-x-2 px-3 py-2 text-sm text-slate-300 hover:bg-dark-700 rounded-lg transition">
+                            <span>⚙️</span>
+                            <span>Profile Settings</span>
+                        </a>
                         <a href="{{ url_for('auth.select_profile') }}" class="flex items-center space-x-2 px-3 py-2 text-sm text-slate-300 hover:bg-dark-700 rounded-lg transition">
                             <span>🔄</span>
                             <span>Switch Profile</span>
