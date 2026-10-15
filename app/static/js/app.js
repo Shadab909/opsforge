@@ -47,7 +47,24 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => el.remove(), 500);
         });
     }, 5000);
+
+    // 4. Profile dropdown toggle for mobile touch & click
+    const profileContainer = document.getElementById('profileDropdownContainer');
+    const profileBtn = document.getElementById('profileDropdownBtn');
+    const profileMenu = document.getElementById('profileDropdownMenu');
+    if (profileBtn && profileMenu) {
+        profileBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            profileMenu.classList.toggle('hidden');
+        });
+        document.addEventListener('click', (e) => {
+            if (profileContainer && !profileContainer.contains(e.target)) {
+                profileMenu.classList.add('hidden');
+            }
+        });
+    }
 });
+
 
 // Colorizes Ansible playbook execution outputs to match terminal aesthetic (Image 2)
 function colorizeAnsiblePlaybookOutputs() {
